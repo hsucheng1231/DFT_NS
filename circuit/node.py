@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from numpy import uint64
+#from numpy import uint64
 from enum import Enum
 import pdb
 import math 
@@ -327,21 +327,20 @@ class Node:
 class BUFF(Node):
     """ This gate is yet not tested""" 
     def __init__(self, n_type, g_type, num):
-        raise NameError("BUFF gate, still not fully checked!")
-        # Node.__init__(self, ntype, g_type, num)
+        Node.__init__(self, n_type, g_type, num)
 
     def imply(self):
-        self.value = self.unode[0].value
+        self.value = self.unodes[0].value
 
     def imply_p(self, bitwise_not):
-        self.pfs_V = self.unode[0].pfs_V
+        self.pfs_V = self.unodes[0].pfs_V
 
     def eval_CC(self):
-        self.CC0 = 1 + self.unode[0].CC0
-        self.CC1 = 1 + self.unode[0].CC1
+        self.CC0 = 1 + self.unodes[0].CC0
+        self.CC1 = 1 + self.unodes[0].CC1
     
     def eval_CO(self):
-        self.unode.CO = self.CO + 1
+        self.unodes.CO = self.CO + 1
     
     def stafan_b(self):
         self.unodes[0].B1 = self.B1
@@ -356,21 +355,20 @@ class BUFF(Node):
 class NOT(Node):
     """ This gate is yet not tested""" 
     def __init__(self, n_type, g_type, num):
-        raise NameError("NOT gate, still not fully checked!")
-        # Node.__init__(self, ntype, g_type, num)
+        Node.__init__(self, n_type, g_type, num)
 
     def imply(self):
-        self.value = 1 if (self.unode[0] == 0) else 0
+        self.value = 1 if (self.unodes[0] == 0) else 0
 
     def imply_p(self, bitwise_not):
-        self.pfs_V = self.unode[0].pfs_V ^ bitwise_not    # invert pfs_V using xor "1111..."
+        self.pfs_V = self.unodes[0].pfs_V ^ bitwise_not    # invert pfs_V using xor "1111..."
 
     def eval_CC(self):
-        self.CC0 = 1 + self.unode[0].CC1
-        self.CC1 = 1 + self.unode[0].CC0
+        self.CC0 = 1 + self.unodes[0].CC1
+        self.CC1 = 1 + self.unodes[0].CC0
     
     def eval_CO(self):
-        self.unode.CO = self.CO + 1
+        self.unodes.CO = self.CO + 1
     
     def stafan_b(self):
         self.unodes[0].B1 = self.B0
@@ -384,7 +382,7 @@ class NOT(Node):
 
 class OR(Node):
     def __init__(self, n_type, g_type, num):
-        Node.__init__(self, ntype, g_type, num)
+        Node.__init__(self, n_type, g_type, num)
 
     def imply(self):
         self.value = 1 if (1 in self.unodes_val()) else 0
@@ -416,7 +414,7 @@ class OR(Node):
 
 class NOR(Node):
     def __init__(self, n_type, g_type, num):
-        Node.__init__(self, ntype, g_type, num)
+        Node.__init__(self, n_type, g_type, num)
 
     def imply(self):
         self.value = 0 if (1 in self.unodes_val()) else 1
@@ -450,7 +448,7 @@ class NOR(Node):
 
 class AND(Node):
     def __init__(self, n_type, g_type, num):
-        Node.__init__(self, ntype, g_type, num)
+        Node.__init__(self, n_type, g_type, num)
 
     def imply(self):
         self.value = 0 if (0 in self.unodes_val()) else 1
@@ -483,7 +481,7 @@ class AND(Node):
 
 class NAND(Node):
     def __init__(self, n_type, g_type, num):
-        Node.__init__(self, ntype, g_type, num)
+        Node.__init__(self, n_type, g_type, num)
     
     def imply(self):
         self.value = 1 if (0 in self.unodes_val()) else 0
@@ -518,7 +516,7 @@ class NAND(Node):
 
 class XOR(Node):
     def __init__(self, n_type, g_type, num):
-        Node.__init__(self, ntype, g_type, num)
+        Node.__init__(self, n_type, g_type, num)
 
     def imply(self):
         try:
@@ -565,7 +563,7 @@ class XOR(Node):
 
 class XNOR(Node):
     def __init__(self, n_type, g_type, num):
-        Node.__init__(self, ntype, g_type, num)
+        Node.__init__(self, n_type, g_type, num)
 
     def imply(self):
         self.value = 0 if (sum(self.unodes_val())%2 == 1) else 1
@@ -609,7 +607,7 @@ class XNOR(Node):
 
 class IPT(Node):
     def __init__(self, n_type, g_type, num):
-        Node.__init__(self, ntype, g_type, num)
+        Node.__init__(self, n_type, g_type, num)
     
     def imply(self, value):
         self.value = value
@@ -634,7 +632,7 @@ class IPT(Node):
 
 class BRCH(Node):
     def __init__(self, n_type, g_type, num):
-        Node.__init__(self, ntype, g_type, num)
+        Node.__init__(self, n_type, g_type, num)
     
     def imply(self):
         self.value = self.unodes[0].value

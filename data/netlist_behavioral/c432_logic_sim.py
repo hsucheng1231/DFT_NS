@@ -1,7 +1,7 @@
 import sys
 from collections import OrderedDict
 import re
-import numpy as np
+#import numpy as np
 
 
 def M1(E, A):

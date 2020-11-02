@@ -248,6 +248,7 @@ class Modelsim():
         fw.close()
 
 
+
     def simulation(self, fname_sh=None):
         """ 
         First: copy verilog file from ./data/verilog to the project folder

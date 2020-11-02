@@ -8,13 +8,13 @@ import sys
 from node import gtype
 from node import ntype
 from node import *
-import networkx as nx
-import matplotlib.pyplot as plt
+#import networkx as nx
+#import matplotlib.pyplot as plt
 from random import randint
 import time
 import pdb
 from multiprocessing import Process, Pipe
-import numpy as np
+#import numpy as np
 import os
 
 import config

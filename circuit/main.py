@@ -15,6 +15,7 @@ import sys
 sys.path.insert(1, "../data/netlist_behavioral")
 from c432_logic_sim import c432_sim
 import config
+from checker_logicsim import *
 
 def check_gate_netlist(circuit, total_T=1):
 
@@ -48,6 +49,13 @@ def main():
     print("\n======================================================")
     print("Run | circuit: {} | Test Count: {} | CPUs: {}".format(args.ckt, args.tp, args.cpu))
     print("======================================================\n")
+
+
+    for c in ['c17','c432','c499','c1355','c6288']:
+        checker = Checker(c, args.tp)
+        checker.modelsim_wrapper()
+        checker.check_ckt_verilog()
+    exit()
 
     circuit = Circuit(args.ckt)
     circuit.read_ckt()
