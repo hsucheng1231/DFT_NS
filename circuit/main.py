@@ -15,11 +15,8 @@ import sys
 sys.path.insert(1, "../data/netlist_behavioral")
 from c432_logic_sim import c432_sim
 import config
-<<<<<<< Updated upstream
 from checker_logicsim import *
-=======
-from regular_tp_gen import regular_tp_gen
->>>>>>> Stashed changes
+from regular_tp_gen import *
 
 def check_gate_netlist(circuit, total_T=1):
 
