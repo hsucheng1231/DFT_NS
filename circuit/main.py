@@ -15,7 +15,11 @@ import sys
 sys.path.insert(1, "../data/netlist_behavioral")
 from c432_logic_sim import c432_sim
 import config
+<<<<<<< Updated upstream
 from checker_logicsim import *
+=======
+from regular_tp_gen import regular_tp_gen
+>>>>>>> Stashed changes
 
 def check_gate_netlist(circuit, total_T=1):
 
@@ -72,23 +76,31 @@ def main():
     # temp = circuit.dfs_single(test1)
     # print("------------------------")
     # print(temp) 
+    regular_tp_gen(circuit)
 
     # Here we need a helper function to create a pattern for full test of a circuit
-    tp_fname = circuit.c_name + "-tp-" + str(args.tp) + ".log"
-    report_fname = circuit.c_name + "-tp-" + str(args.tp) + "-fault-sim.log"
+    # tp_fname = circuit.c_name + "-tp-" + str(args.tp) + ".log"
+    # report_fname = circuit.c_name + "-tp-" + str(args.tp) + "-fault-sim.log"
 
-    circuit.gen_tp_file(
-            args.tp, 
-            fname=tp_fname,
-            mode = "b")
-    circuit.get_full_fault_list()
+    # circuit.gen_tp_file(
+    #         args.tp, 
+    #         fname=tp_fname,
+    #         mode = "b")
+    # circuit.dfs_multiple(
+    #         # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
+    #         fname_tp = tp_fname,
+    #         # fname_log="./c17_all_pfs.log",
+    #         fname_log=report_fname,
+    #         mode='b')
+
+    # circuit.get_full_fault_list()
     #circuit.pfs_in_fault_list(fname_fl)
-    circuit.pfs_multiple(
-            # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
-            fname_tp = tp_fname,
-            # fname_log="./c17_all_pfs.log",
-            fname_log=report_fname,
-            mode='b')
+    # circuit.pfs_multiple(
+    #         # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
+    #         fname_tp = tp_fname,
+    #         # fname_log="./c17_all_pfs.log",
+    #         fname_log=report_fname,
+    #         mode='b')
     # circuit.FD_new_generator()
     exit()
 

@@ -8,8 +8,13 @@ import sys
 from node import gtype
 from node import ntype
 from node import *
+<<<<<<< Updated upstream
 #import networkx as nx
 #import matplotlib.pyplot as plt
+=======
+# import networkx as nx
+import matplotlib.pyplot as plt
+>>>>>>> Stashed changes
 from random import randint
 import time
 import pdb
@@ -911,16 +916,7 @@ class Circuit:
                 sheet.write(j, fault_mapping[line[:-1]], 'X')
             else:
                 sheet.write(j, 0, line)
-                
-            
-        # sheet.write(0, 0, 'SAMPLE')
-        # for line in fr.readlines():
-        # sheet.write(0, 0, 'SAMPLE') 
-        # sheet.write(1, 0, 'ISBT DEHRADUN') 
-        # sheet.write(2, 0, 'SHASTRADHARA') 
-        # sheet.write(3, 0, 'CLEMEN TOWN') 
-        # sheet.write(4, 0, 'RAJPUR ROAD') 
-        # sheet.write(5, 0, 'CLOCK TOWER') 
+
         workbook.save(os.path.join(fw_path, self.c_name + '_FD_new.xls'))
 
 
