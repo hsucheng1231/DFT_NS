@@ -5,7 +5,7 @@ from circuit import *
 from modelsim_simulator import *
 
 class Checker():
-    def __init__(self):
+    def __init__(self, c_name, tp_count):
         """ create a circuit and a modelsim simulation
         we have two types of inputs: "gate-level-circuit" and a "verilog"
         verilog can be anything, gate level, behavioral, etc. 
@@ -19,29 +19,68 @@ class Checker():
         - Check if the PI/PO of the files are the same -- raise error if not match
         - etc. 
         """
-    def run(self, ckt_name, tp_count):
+        self.c_name = c_name
+        self.tp_count = tp_count
+
+
+    def modelsim_wrapper(self):
         '''
         Given the circuit name and test pattern count, it will do the logic_sim on our platform and the simulation on ModelSim
         Return the check result between logic_sim and ModelSim
         #We use read_verilog() here
         '''
-        circuit = Circuit(ckt_name)
+        #Generate random inputs patterns for circuit
+        #Simulate the random input patterns with modelsim, using Modelsim class
+        #Store the golden results in correct locations
+        #This is simply a wrapper around class Modelsim
+        circuit = Circuit(self.c_name)
+        #self.circuit = circuit
         circuit.read_verilog()
         circuit.lev()
         sim = Modelsim()
         sim.project(circuit)
-        sim.gen_rand_tp(tp_count= tp_count)
+        #sim.gen_tb(sim.gen_rand_tp(tp_count= tp_count))
+        sim.gen_rand_tp(tp_count= self.tp_count)
         sim.gen_tb()
         sim.simulation()
-        tp_path = os.path.join(sim.path_gold, 'golden_' + circuit.c_name + '_'+ str(tp_count)+ '_tp_b.txt')
-        return self.check_IO_golden(circuit, tp_path)
+        self.tp_path = os.path.join(sim.path_gold, 'golden_' + circuit.c_name + '_'+ str(self.tp_count)+ '_b.txt')
+        #return self.check_IO_golden(circuit, self.tp_path)
 
+    def check_ckt_verilog(self):
+        #check verilog with golden_IO
+        #check ckt with golden_IO
+        circuit_verilog = Circuit(self.c_name)
+        circuit_verilog.read_verilog()
+        circuit_verilog.lev()
 
+        circuit_ckt = Circuit(self.c_name)
+        circuit_ckt.read_ckt()
+        circuit_ckt.lev()
+
+        if self.check_IO_golden(circuit_verilog) == True:
+            print(circuit_verilog.c_name + 'verilog matches golden_IO!')
+        else:
+            print(circuit_verilog.c_name + 'verilog does not match golden_IO!')
+        if self.check_IO_golden(circuit_ckt) == True:
+            print(circuit_ckt.c_name + 'ckt matches golden_IO!')
+        else:
+            print(circuit_ckt.c_name + 'ckt does not match golden_IO!')
+    '''
+    def run_ckt(self, ckt_name, tp_count):
+
+        circuit2 = Circuit(ckt_name)
+        circuit2.read_ckt()
+        circuit2.lev()
+        #tp_path = os.path.join(sim.path_gold, 'golden_' + circuit.c_name + '_'+ str(tp_count)+ '_b.txt')
+        return self.check_IO_golden(circuit2, self.tp_path)
+    '''
+    '''
     def run_all(self, tp_count):
-        '''
-        It will run all of .v files in VERILOG_DIR and compare results between ModelSim and our Simulator
-        '''
+        
+        #It will run all of .v files in VERILOG_DIR and compare results between ModelSim and our Simulator
+        
         file_names = []
+        file_names_ckt = []
         #r=root, d=directories, f = files
         #find all .v files in the VERILOG_DIR
         for r, d, f in os.walk(config.VERILOG_DIR):
@@ -49,23 +88,43 @@ class Checker():
                 if '.v' in file:
                     file_names.append(os.path.splitext(file)[0])
         #check the result by using function run()
+        for r, d, f in os.walk(config.CKT_DIR):
+            for file in f:
+                if '.ckt' in file:
+                    file_names_ckt.append(os.path.splitext(file)[0])
+        print(file_names_ckt)
+        print(file_names)
+        Fault_v_name = []
+        Fault_ckt_name = []
         for c_name in file_names:
             if self.run(c_name, tp_count) == False:
-                print('Test: {} fails !'.format(c_name))
-                return False
+                Fault_v_name.append(c_name)
+            if c_name in file_names_ckt:
+                print('###################################################' + c_name)
+                if self.run_ckt(c_name, tp_count) == False:
+                    Fault_ckt_name.append(c_name)
+            
+        if len(Fault_v_name) != 0:
+            for cname in Fault_v_name:
+                print('Verilog Test: {} fails !'.format(cname))
+        
+        if len(Fault_ckt_name) != 0:
+            for cname in Fault_ckt_name:
+                print('CKT Test: {} fails !'.format(cname))
+                return False 
         print('#########################################################')
         print('############## All Circuits Tests Pass ! ################')
         print('#########################################################')
         return True
-
-
+    '''
+    '''
     def check_PI_PO(self, fname_ckt, fname_verilog):
-        '''
-        from http://sportlab.usc.edu/~msabrishami/benchmarks.html
-        between CKT-658 and verilog
-        circuit: 1355 has different PI/PO pins
-        circuit: 17, 432, 499, 880, 1908, 3540, 5315, 6288 has the same PI/PO pins 
-        '''
+        
+        #from http://sportlab.usc.edu/~msabrishami/benchmarks.html
+        #between CKT-658 and verilog
+        #circuit: 1355 has different PI/PO pins
+        #circuit: 17, 432, 499, 880, 1908, 3540, 5315, 6288 has the same PI/PO pins 
+        
         ckt_path = os.path.join(config.CKT_DIR,fname_ckt)
         verilog_path = os.path.join(config.VERILOG_DIR,fname_verilog)
         fr_ckt = open(ckt_path, mode = 'r')
@@ -115,11 +174,12 @@ class Checker():
             print('{} and {} are the same!'.format(fname_ckt, fname_verilog))
         else:
             print('{} and {} are not the same!'.format(fname_ckt, fname_verilog))
-
+    '''
+    '''
     def run_check_PI_PO(self):
-        '''
-        check all of .ckt and .v files automatically by using function check_PI_PO()
-        '''
+        
+        #check all of .ckt and .v files automatically by using function check_PI_PO()
+        
         file_names_ckt = []
         file_names_ckt_and_verilog = []
         # r=root, d=directories, f = files
@@ -138,20 +198,20 @@ class Checker():
         #check by function check_PI_PO()
         for file in file_names_ckt_and_verilog:
             self.check_PI_PO(file + '.ckt', file + '.v')
+    '''
 
-
-    def check_IO_golden(self, circuit, golden_io_filename):
+    def check_IO_golden(self, circuit):
         #we have golden_test() in circuit
-        #compares the results of logic-sim of this circuit,
-        #... provided a golden input/output file
-        infile = open(golden_io_filename, "r")
+        #We already generated golden-results
+        #Now we just want to check if circuit.logicsim of ckt or verilog matches
+        infile = open(self.tp_path, "r")
         lines = infile.readlines()
         PI_t_order  = [x[1:] for x in lines[0][8:].strip().split(',')]
         PO_t_order = [x[1:] for x in lines[1][8:].strip().split(',')]
         PI_num = [x.num for x in circuit.PI]
-        print("Logic-Sim validation with {} patterns".format(int((len(lines)-2)/3)))
+        #print("Logic-Sim validation with {} patterns".format(int((len(lines)-2)/3)))
         if PI_t_order != PI_num:
-            print("Error: PI node order does not match! ")
+            print("Error:{} PI node order does not match! ".format(circuit.c_name))
             return False
         for t in range(int((len(lines)-2)/3)):
             test_in  = [int(x) for x in lines[(t+1)*3].strip().split(',')]
@@ -162,9 +222,9 @@ class Checker():
                 out_node = PO_t_order[i]
                 out_node_golden = test_out[i]
                 if out_node_golden != logic_out["out"+str(out_node)]:
-                    print("Error: PO node order does not match! ")
+                    print("Error:{} PO node order does not match! ".format(circuit.c_name))
                     return False
-        print("Validation completed successfully - all correct")
+        #print("Validation completed successfully - all correct")
         return True
 '''
 try:
