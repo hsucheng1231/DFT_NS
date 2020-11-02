@@ -943,6 +943,11 @@ class Circuit:
             self.fault_type.append(1)
 
     def pfs_in_fault_list(self,fname_fl):
+        """
+        Parallel Fault Simulation:
+        For a given input fault list
+        generate two lists: in_fault_node_num, in_fault_node_type.
+        """
         fr = open(fname_fl, mode='r')
         lines = fr.readlines()
         self.in_fault_node_num = []
