@@ -8,13 +8,9 @@ import sys
 from node import gtype
 from node import ntype
 from node import *
-<<<<<<< Updated upstream
-#import networkx as nx
-#import matplotlib.pyplot as plt
-=======
 # import networkx as nx
-import matplotlib.pyplot as plt
->>>>>>> Stashed changes
+# import matplotlib.pyplot as plt
+
 from random import randint
 import time
 import pdb
