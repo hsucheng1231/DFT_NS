@@ -19,7 +19,7 @@ from multiprocessing import Process, Pipe
 import os
 
 import config
-import xlwt
+#import xlwt
 #TODO: one issue with ckt (2670 as example) is that some nodes are both PI and PO
 """
 # Tasks for the DFT team:

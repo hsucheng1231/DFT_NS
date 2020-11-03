@@ -79,7 +79,8 @@ def main():
     # tp_fname = circuit.c_name + str(args.tp)  + "_tp_"+ ".log"
     # report_fname = circuit.c_name + "_tp_" + str(args.tp) + "-fault-sim.log"
     tp_fname = circuit.c_name + "_full_tp_b.txt"
-    report_fname = circuit.c_name + "_full_dfs_b.log"
+    dfs_report_fname = circuit.c_name + "_full_dfs_b.log"
+    pfs_report_fname = circuit.c_name + "_full_pfs_b.log"
 
     # circuit.gen_tp_file(
     #         args.tp, 
@@ -89,17 +90,18 @@ def main():
             # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
             fname_tp = tp_fname,
             # fname_log="./c17_all_pfs.log",
-            fname_log=report_fname,
+            fname_log=dfs_report_fname,
             mode='b')
 
-    # circuit.get_full_fault_list()
+    # pfs
+    circuit.get_full_fault_list()
     #circuit.pfs_in_fault_list(fname_fl)
-    # circuit.pfs_multiple(
-    #         # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
-    #         fname_tp = tp_fname,
-    #         # fname_log="./c17_all_pfs.log",
-    #         fname_log=report_fname,
-    #         mode='b')
+    circuit.pfs_multiple_seperate(
+    #         fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
+             fname_tp = tp_fname,
+    #         fname_log="./c17_all_pfs.log",
+             fname_log=pfs_report_fname,
+             mode='b')
     # circuit.FD_new_generator()
     exit()
 
