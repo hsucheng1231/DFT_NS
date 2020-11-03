@@ -49,14 +49,12 @@ def dfs_pfs_checker(circuit, tp_num=1, mode='rand'):
         print(line_out)
 
         pass_flag = 0
-        while line_golden !='' and line_out != '':
-            if line_golden == line_out:
+        for i in range(len(line_golden)):
+            if line_golden[i] == line_out[i]:
                 pass_flag=1
-            elif line_golden != line_out:
+            elif line_golden[i] != line_out[i]:
                 fw.write('results are different!\n')
                 break
-            line_golden = file_golden.readline()
-            line_out = file_out.readline()
 
         if pass_flag == 1:
             fw.write('results are the same!\n')
