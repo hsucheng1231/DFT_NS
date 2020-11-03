@@ -451,6 +451,7 @@ class Circuit:
             rand_input_val_list.append(random.randint(0,1))
         return rand_input_val_list
     
+
     def gen_tp_file(self, test_count, fname=None, mode="b"):
         """ create single file with multiple input patterns
         mode b: generate values in {0, 1}
@@ -861,6 +862,51 @@ class Circuit:
         print("DFS-Multiple completed. \nLog file saved in {}".format(fname_log))
 
 
+    def dfs_exe(self, tp_num=1, mode='rand'):
+        """
+        Execute dfs in rand or full mode
+        rand: the total faults can be detected by several random patterns
+        full: the faults can be detected by each single pattern; all possible patterns are included
+        """
+        if mode == 'rand':
+            dfs_report_fname = self.c_name + '_' + str(tp_num) + '_dfs_b.log'
+            tp_path = config.FAULT_SIM_DIR
+            if not os.path.exists(tp_path):
+                os.mkdir(tp_path)
+            tp_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/'
+            if not os.path.exists(tp_path):
+                os.mkdir(tp_path)
+            tp_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/input/'
+            if not os.path.exists(tp_path):
+                os.mkdir(tp_path)
+            tp_fname = tp_path + self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+            tp_fname_bare = self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+            # generate given number random patterns
+            self.gen_tp_file(
+            tp_num, 
+            fname=tp_fname,
+            mode = "b")
+            # run dfs
+            self.dfs_multiple(
+            fname_tp = tp_fname_bare,
+            fname_log=dfs_report_fname,
+            mode='b')
+
+        elif mode == 'full':
+            dfs_report_fname = self.c_name + "_full_dfs_b.log"
+            tp_fname_bare = self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+            # generate all possible patterns in order
+            regular_tp_gen()
+            # run dfs
+            self.dfs_multiple_separate(
+            fname_tp = tp_fname_bare,
+            fname_log=dfs_report_fname,
+            mode='b')
+
+        else:
+            raise NameError("Mode is not acceptable! Mode = 'rand' or 'full'!")
+
+
     def FD_new_generator(self):
         """
         Creat a new FD in excel using dfs results
@@ -1141,6 +1187,9 @@ class Circuit:
         fr.close()
         fw.close()
         print("PFS-Separate completed. \nLog file saved in {}".format(fname_log))
+    
+
+
    
 
     def gen_fault_dic(self):
