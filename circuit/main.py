@@ -53,16 +53,11 @@ def main():
     print("======================================================\n")
 
     #Ting-Yu
-    for c in ['c17','c432','c499','c880','c1355','c1908','c2670','3540','c5315','c6288','7552']:
-        checker = Checker(c, args.tp)
-        if checker.check_PI_PO() == False:
-            print('#######################################')
-            continue
-        checker.modelsim_wrapper()
-        checker.check_ckt_verilog('verilog')
-        checker.check_ckt_verilog('ckt')
-        print('#######################################')
-    exit()
+    # for c in ['c17','c432','c499','c1355','c6288']:
+    #     checker = Checker(c, args.tp)
+    #     checker.modelsim_wrapper()
+    #     checker.check_ckt_verilog()
+    # exit()
 
     circuit = Circuit(args.ckt)
     # circuit.read_verilog()
@@ -80,35 +75,23 @@ def main():
     # tp_fname = circuit.c_name + str(args.tp)  + "_tp_"+ ".log"
     # report_fname = circuit.c_name + "_tp_" + str(args.tp) + "-fault-sim.log"
     # tp_fname = circuit.c_name + "_full_tp_b.txt"
-    tp_path = config.FAULT_SIM_DIR + '/' + circuit.c_name + '/input/'
-    tp_fname = tp_path + circuit.c_name + '_' + str(args.tp) + "_tp_b.txt"
-    tp_fname_bare = circuit.c_name + '_' + str(args.tp) + "_tp_b.txt"
-    dfs_report_fname = circuit.c_name + "_full_dfs_b.log"
-    pfs_report_fname = circuit.c_name + "_full_pfs_b.log"
 
-    circuit.gen_tp_file(
-            args.tp, 
-            fname=tp_fname,
-            mode = "b")
+
     """ Testing DFS """
-    circuit.dfs_multiple_separate(
-            # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
-            fname_tp = tp_fname_bare,
-            # fname_log="./c17_all_pfs.log",
-            fname_log=dfs_report_fname,
-            mode='b')
+    circuit.dfs_exe(tp_num = args.tp, mode = 'rand')
+
 
     """ Testing PFS """
-    circuit.get_full_fault_list()
-    #circuit.pfs_in_fault_list(fname_fl)
-    circuit.pfs_multiple_separate(
-            # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
-            fname_tp = tp_fname_bare,
-            # fname_log="./c17_all_pfs.log",
-            fname_log=pfs_report_fname,
-            mode='b')
+    # circuit.get_full_fault_list()
+    # #circuit.pfs_in_fault_list(fname_fl)
+    # circuit.pfs_multiple_separate(
+    #         # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
+    #         fname_tp = tp_fname_bare,
+    #         # fname_log="./c17_all_pfs.log",
+    #         fname_log=pfs_report_fname,
+    #         mode='b')
 
-    """Check the results of DFS and PFS"""
+    # """Check the results of DFS and PFS"""
     file_checker(circuit, dfs_report_fname, pfs_report_fname, tp_fname_bare)
     # circuit.FD_new_generator()
     exit()
