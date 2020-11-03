@@ -53,15 +53,15 @@ def main():
     print("======================================================\n")
 
     #Ting-Yu
-    '''
-    for c in ['c17','c432','c499','c1355','c6288']:
+    
+    for c in ['c17','c432','c499','c880','c1355','c1908','c2670','c3540','c5315','c6288','c7552']:
         checker = Checker(c, args.tp)
         checker.check_PI_PO()
         checker.modelsim_wrapper()
         checker.check_ckt_verilog('verilog')
         checker.check_ckt_verilog('ckt')
-    exit()
-    '''
+    #exit()
+    
 
     circuit = Circuit(args.ckt)
     # circuit.read_verilog()
