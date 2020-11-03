@@ -53,11 +53,16 @@ def main():
     print("======================================================\n")
 
     #Ting-Yu
-    # for c in ['c17','c432','c499','c1355','c6288']:
-    #     checker = Checker(c, args.tp)
-    #     checker.modelsim_wrapper()
-    #     checker.check_ckt_verilog()
-    # exit()
+    for c in ['c17','c432','c499','c880','c1355','c1908','c2670','3540','c5315','c6288','7552']:
+        checker = Checker(c, args.tp)
+        if checker.check_PI_PO() == False:
+            print('#######################################')
+            continue
+        checker.modelsim_wrapper()
+        checker.check_ckt_verilog('verilog')
+        checker.check_ckt_verilog('ckt')
+        print('#######################################')
+    exit()
 
     circuit = Circuit(args.ckt)
     # circuit.read_verilog()
