@@ -52,14 +52,14 @@ def main():
     print("======================================================\n")
 
 
-    for c in ['c17','c432','c499','c1355','c6288']:
-        checker = Checker(c, args.tp)
-        checker.modelsim_wrapper()
-        checker.check_ckt_verilog()
-    exit()
+    # for c in ['c17','c432','c499','c1355','c6288']:
+    #     checker = Checker(c, args.tp)
+    #     checker.modelsim_wrapper()
+    #     checker.check_ckt_verilog()
+    # exit()
 
     circuit = Circuit(args.ckt)
-    circuit.read_ckt()
+    circuit.read_verilog()
     circuit.lev()
    
     """ Testing PFS """
@@ -73,22 +73,24 @@ def main():
     # temp = circuit.dfs_single(test1)
     # print("------------------------")
     # print(temp) 
-    regular_tp_gen(circuit)
+    # regular_tp_gen(circuit)
 
     # Here we need a helper function to create a pattern for full test of a circuit
-    # tp_fname = circuit.c_name + "-tp-" + str(args.tp) + ".log"
-    # report_fname = circuit.c_name + "-tp-" + str(args.tp) + "-fault-sim.log"
+    # tp_fname = circuit.c_name + str(args.tp)  + "_tp_"+ ".log"
+    # report_fname = circuit.c_name + "_tp_" + str(args.tp) + "-fault-sim.log"
+    tp_fname = circuit.c_name + "_full_tp_b.txt"
+    report_fname = circuit.c_name + "_full_dfs_b.log"
 
     # circuit.gen_tp_file(
     #         args.tp, 
     #         fname=tp_fname,
     #         mode = "b")
-    # circuit.dfs_multiple(
-    #         # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
-    #         fname_tp = tp_fname,
-    #         # fname_log="./c17_all_pfs.log",
-    #         fname_log=report_fname,
-    #         mode='b')
+    circuit.dfs_multiple_separate(
+            # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
+            fname_tp = tp_fname,
+            # fname_log="./c17_all_pfs.log",
+            fname_log=report_fname,
+            mode='b')
 
     # circuit.get_full_fault_list()
     #circuit.pfs_in_fault_list(fname_fl)

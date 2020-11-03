@@ -778,18 +778,16 @@ class Circuit:
         """
         if mode not in ["b", "x"]:
             raise NameError("Mode is not acceptable")
-        # if os.path.exists('../data/fault_sim/') == False:
-        #     os.mkdir('../data/fault_sim/')
-        # input_path = '../data/modelsim/' + self.c_name + '/input/'
-        # if os.path.exists(input_path) == False:
-        #     os.mkdir(input_path)
-        # output_path = '../data/fault_sim/' + self.c_name + '/'
-        # if os.path.exists(output_path) == False:
-        #     os.mkdir(output_path)
-        fr = open(fname_tp, mode='r')
+        output_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/dfs/'
+        input_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/input/'
+        if not os.path.exists(output_path):
+                os.mkdir(output_path)
+        if not os.path.exists(input_path):
+            raise NameError("No test pattern folder!")
+        fr = open(input_path + fname_tp, mode='r')
         # output_path = output_path + fname.rstrip('tp_b.txt') + '_dfs_out.txt'
-        fw = open(fname_log, mode='w')
-        
+        fw = open(output_path + fname_log, mode='w')
+        # read the test pattern
         lines = fr.readlines()
         # obtain a multiple test patterns list from the input file
         pattern_list = []
@@ -803,7 +801,7 @@ class Circuit:
             # print("hello pattern list")
             fault_subset = self.dfs_single(sub_pattern)
             fault_sublist = list(fault_subset)
-            fault_sublist.sort(key=lambda x: (int(x[0]), int(x[1])))
+            # fault_sublist.sort(key=lambda x: (int(x[0]), int(x[1])))
             pattern_str = map(str,sub_pattern)
             pattern_str = ",".join(pattern_str)
             fw.write(pattern_str + '\n')
@@ -823,19 +821,17 @@ class Circuit:
         fault_list should be like the following format: (string in the tuples)
             fault_list = [('1','0'),('1','1'),('8','0'),('5','1'),('6','1')]
         """
-        # if mode not in ["b", "x"]:
-        #     raise NameError("Mode is not acceptable")
-        # if os.path.exists(config.FAULT_SIM_DIR) == False:
-        #     os.mkdir(config.FAULT_SIM_DIR)
-        # input_path = '../data/modelsim/' + self.c_name + '/input/'
-        # if os.path.exists(input_path) == False:
-        #     os.mkdir(input_path)
-        # output_path = '../data/fault_sim/' + self.c_name + '/'
-        # if os.path.exists(output_path) == False:
-        #     os.mkdir(output_path)
-        fr = open(fname_tp, mode='r')
+        if mode not in ["b", "x"]:
+            raise NameError("Mode is not acceptable")
+        output_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/dfs/'
+        input_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/input/'
+        if not os.path.exists(output_path):
+                os.mkdir(output_path)
+        if not os.path.exists(input_path):
+            raise NameError("No test pattern folder!")
+        fr = open(input_path + fname_tp, mode='r')
         # output_path = output_path + fname.rstrip('tp_b.txt') + '_dfs_out.txt'
-        fw = open(fname_log, mode='w')
+        fw = open(output_path + fname_log, mode='w')
         # drop the first row of input names
         line = fr.readline()
         # obtain a multiple test patterns list from the input file
