@@ -1064,34 +1064,30 @@ class Circuit:
             self.in_fault_node_type.append(int(line_split[1]))
 
     
-    def pfs_single(self, input_pattern):
+    def pfs_single(self, input_pattern,in_fl_mode):
         """
         Parallel Fault Simulation:
         For a given test pattern
         faults in self.fault_node_num 
         PFS simulates a set of faults detected by the test pattern.
         """
-        # input fault list
-        #faultnum = len(self.in_fault_node_num)
+        
+        pfs_fault_val = []
+        pfs_fault_num = []
+        if in_fl_mode == 1:
+            faultnum = len(self.fault_node_num)
+            pfs_fault_num = self.fault_node_num.copy()
+            pfs_fault_val = self.fault_type.copy()
+        else:
+            faultnum = len(self.in_fault_node_num)
+            pfs_fault_num = self.in_fault_node_num.copy()
+            pfs_fault_val = self.in_fault_node_type.copy()
 
-        # full fault list
-        faultnum = len(self.fault_node_num)
         n = sys.maxsize
         bitlen = int(math.log2(n))+1
         bitwise_not = 2**bitlen-1
 
         pass_tot = math.ceil(float(faultnum) / float(bitlen-1))
-
-        pfs_fault_val = []
-        pfs_fault_num = []
-
-        # full fault list
-        pfs_fault_num = self.fault_node_num.copy()
-        pfs_fault_val = self.fault_type.copy()
-
-        # input fault list
-        #pfs_fault_num = self.in_fault_node_num.copy()
-        #pfs_fault_val = self.in_fault_type.copy()
 
         detected_fault_num = []
         detected_fault_value = []
@@ -1163,7 +1159,7 @@ class Circuit:
 
         return fault_set
 
-    def pfs_multiple_separate(self, fname_tp, fname_log, mode="b"):
+    def pfs_multiple_separate(self, fname_tp, fname_log, in_fl_mode, mode="b"):
         """ 
         new pfs for multiple input patterns
         the pattern list is obtained as a list consists of sublists of each pattern like:
@@ -1201,7 +1197,7 @@ class Circuit:
                 line_split[x]=int(line_split[x])
             pattern_list.append(line_split)
         for sub_pattern in pattern_list:
-            fault_subset = self.pfs_single(sub_pattern)
+            fault_subset = self.pfs_single(sub_pattern,in_fl_mode)
             fault_sublist = list(fault_subset)
             updated_fault_sublist = []
             for subset in fault_sublist:
@@ -1226,7 +1222,7 @@ class Circuit:
         print("PFS-Separate completed. \nLog file saved in {}".format(fname_log))
 
 
-    def pfs_multiple(self, fname_tp, fname_log, mode="b"):
+    def pfs_multiple(self, fname_tp, fname_log, in_fl_mode, mode="b"):
         """ 
         new pfs for multiple input patterns
         the pattern list is obtained as a list consists of sublists of each pattern like:
@@ -1258,7 +1254,7 @@ class Circuit:
             pattern_list.append(line_split)
         fault_set = set()
         for sub_pattern in pattern_list:
-            fault_subset = self.pfs_single(sub_pattern)
+            fault_subset = self.pfs_single(sub_pattern,in_fl_mode)
             fault_set = fault_set.union(fault_subset)
         fault_list = list(fault_set)
         updated_fault_sublist = []
@@ -1279,13 +1275,16 @@ class Circuit:
         fw.close()
         print("PFS-Separate completed. \nLog file saved in {}".format(fname_log))
     
-    def pfs_exe(self, tp_num=1, mode='rand'):
+    def pfs_exe(self, in_fl_mode, tp_num=1, mode='rand',fname_fl=None):
         """
         Execute pfs in rand or full mode
         rand: the total faults can be detected by several random patterns
         full: the faults can be detected by each single pattern; all possible patterns are included
         """
-        self.get_full_fault_list()
+        if in_fl_mode == 1:
+            self.get_full_fault_list()
+        else:
+            self.pfs_in_fault_list(fname_fl)
         if mode == 'rand':
             pfs_report_fname = self.c_name + '_' + str(tp_num) + '_pfs_b.log'
             tp_path = config.FAULT_SIM_DIR
@@ -1306,10 +1305,11 @@ class Circuit:
             fname=tp_fname,
             mode = "b")
             '''
-            # run dfs
+            # run pfs
             self.pfs_multiple(
             fname_tp = self.tp_fname_bare,
             fname_log=pfs_report_fname,
+            in_fl_mode = in_fl_mode,
             mode='b')
 
         elif mode == 'full':
@@ -1321,6 +1321,7 @@ class Circuit:
             self.pfs_multiple_separate(
             fname_tp = tp_fname_bare,
             fname_log=pfs_report_fname,
+            in_fl_mode = in_fl_mode,
             mode='b')
 
         else:

@@ -86,7 +86,8 @@ def main():
 
 
     """ Testing PFS """
-    circuit.pfs_exe(tp_num = args.tp, mode = 'full')
+    circuit.pfs_exe(in_fl_mode = 1, tp_num = args.tp, mode = 'full',fname_fl=None)
+    #circuit.pfs_exe(in_fl_mode = 0, tp_num = args.tp, mode = 'full',fname_fl='c17_f0.saf')
     # circuit.get_full_fault_list()
     # #circuit.pfs_in_fault_list(fname_fl)
     # circuit.pfs_multiple_separate(
