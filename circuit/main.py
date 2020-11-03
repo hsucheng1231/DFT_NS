@@ -51,12 +51,12 @@ def main():
     print("Run | circuit: {} | Test Count: {} | CPUs: {}".format(args.ckt, args.tp, args.cpu))
     print("======================================================\n")
 
-
-    # for c in ['c17','c432','c499','c1355','c6288']:
-    #     checker = Checker(c, args.tp)
-    #     checker.modelsim_wrapper()
-    #     checker.check_ckt_verilog()
-    # exit()
+    #Ting-Yu
+    for c in ['c17','c432','c499','c1355','c6288']:
+        checker = Checker(c, args.tp)
+        checker.modelsim_wrapper()
+        checker.check_ckt_verilog()
+    exit()
 
     circuit = Circuit(args.ckt)
     circuit.read_verilog()
