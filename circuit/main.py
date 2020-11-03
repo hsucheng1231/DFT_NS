@@ -94,14 +94,14 @@ def main():
             mode='b')
 
     # pfs
-    circuit.get_full_fault_list()
+    #circuit.get_full_fault_list()
     #circuit.pfs_in_fault_list(fname_fl)
-    circuit.pfs_multiple_seperate(
+    #circuit.pfs_multiple_seperate(
     #         fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
-             fname_tp = tp_fname,
+    #         fname_tp = tp_fname,
     #         fname_log="./c17_all_pfs.log",
-             fname_log=pfs_report_fname,
-             mode='b')
+    #         fname_log=pfs_report_fname,
+    #         mode='b')
     # circuit.FD_new_generator()
     exit()
 
