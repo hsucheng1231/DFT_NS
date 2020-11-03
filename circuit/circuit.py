@@ -476,6 +476,37 @@ class Circuit:
         infile.close()
 
 
+    def regular_tp_gen(self):
+        """
+        Generate all possible test patterns for the given circuit in order
+        """
+        num = len(self.PI)
+        times = pow(2, num)
+        pattern = []
+        output_path = config.FAULT_SIM_DIR
+        if not os.path.exists(output_path):
+                os.mkdir(output_path)
+        output_path = (output_path + '/' + self.c_name + '/')
+        if not os.path.exists(output_path):
+                os.mkdir(output_path)
+        output_path = (output_path + '/input/')
+        if not os.path.exists(output_path):
+                os.mkdir(output_path)
+        fw = open(output_path + self.c_name + '_full_tp_b.txt', mode='w')
+        PI_list = []
+        for node in self.PI:
+                PI_list.append(node.num)
+        PI_string = ','.join(PI_list)
+        print(PI_string)
+        fw.write(PI_string + '\n')
+        for i in range(times):
+                # print(bin(i)[2:].zfill(num))
+                pattern = list(bin(i)[2:].zfill(num))
+                pattern_str = ",".join(pattern)
+                print(pattern_str)
+                fw.write(pattern_str + '\n')
+
+
     def read_PO(self):
         res = {}
         for node in self.PO:
@@ -802,21 +833,14 @@ class Circuit:
             # print("hello pattern list")
             fault_subset = self.dfs_single(sub_pattern)
             fault_sublist = list(fault_subset)
-            updated_fault_sublist = []
-            for subset in fault_sublist:
-                if '-' in subset[0]:
-                    updated_fault_sublist.append((subset[0].split('-')[0], subset[0].split('-')[1], subset[1]))
-                else:
-                    updated_fault_sublist.append((subset[0], '0', subset[1]))
-            updated_fault_sublist.sort(key=lambda x: (int(x[0]), int(x[1]), int(x[2])))
+            fault_sublist.sort(key=lambda x: (int(x[0]), int(x[1])))
             pattern_str = map(str,sub_pattern)
             pattern_str = ",".join(pattern_str)
             fw.write(pattern_str + '\n')
-            for fault in updated_fault_sublist:
-                if fault[1] == '0':
-                    fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
-                else:
-                    fw.write(str(fault[0]) + '-' + str(fault[1]) + '@' + str(fault[2]) + '\n')
+            fault_coverage = float(len(fault_sublist) / (2*len(self.nodes_lev)))
+            for fault in fault_sublist:
+                fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
+            fw.write("Fault Coverage = " + str(fault_coverage) + '\n')
             fw.write('\n')
         fr.close()
         fw.close()
@@ -860,20 +884,14 @@ class Circuit:
             fault_set = fault_set.union(fault_subset)
         # generate output file
         fault_list = list(fault_set)
-        updated_fault_list = []
-        for subset in fault_list:
-            if '-' in subset[0]:
-                updated_fault_list.append((subset[0].split('-')[0], subset[0].split('-')[1], subset[1]))
-            else:
-                updated_fault_list.append((subset[0], '0', subset[1]))
-        #fault_list.sort(key=lambda x: (int(x[0]), int(x[1])))
-        updated_fault_list.sort(key=lambda x: (int(x[0]), int(x[1]), int(x[2])))
+        # print(fault_list)
+        fault_list.sort(key=lambda x: (int(x[0]), int(x[1])))
         # fault is a tuple like: (1,0): node 1 ss@0
-        for fault in updated_fault_list:
-            if fault[1] == '0':
-                fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
-            else:
-                fw.write(str(fault[0]) + '-' + str(fault[1]) + '@' + str(fault[2]) + '\n')
+        fault_coverage = float(len(fault_list) / (2*len(self.nodes_lev)))
+        for fault in fault_list:
+             fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
+             # print(str(fault[0]) + '@' + str(fault[1]) + '\n')
+        fw.write("Fault Coverage = " + str(fault_coverage) + '\n')
         fr.close()
         fw.close()
         print("DFS-Multiple completed. \nLog file saved in {}".format(fname_log))
@@ -910,10 +928,10 @@ class Circuit:
             mode='b')
 
         elif mode == 'full':
-            dfs_report_fname = self.c_name + "_full_dfs_b.log"
-            tp_fname_bare = self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+            dfs_report_fname = self.c_name + '_full_dfs_b.log'
+            tp_fname_bare = self.c_name + '_full_tp_b.txt'
             # generate all possible patterns in order
-            regular_tp_gen()
+            self.regular_tp_gen()
             # run dfs
             self.dfs_multiple_separate(
             fname_tp = tp_fname_bare,
@@ -1105,7 +1123,7 @@ class Circuit:
 
         fault_set = set()
         for k in range(len(detected_fault_num)):
-            fault_set = fault_set.union({(detected_fault_num[k],detected_fault_value[k])})
+            fault_set = fault_set.union({(int(detected_fault_num[k]),detected_fault_value[k])})
 
         return fault_set
 
@@ -1149,23 +1167,12 @@ class Circuit:
         for sub_pattern in pattern_list:
             fault_subset = self.pfs_single(sub_pattern)
             fault_sublist = list(fault_subset)
-            updated_fault_sublist = []
-            for subset in fault_sublist:
-                if '-' in subset[0]:
-                    updated_fault_sublist.append((subset[0].split('-')[0], subset[0].split('-')[1], subset[1]))
-                else:
-                    updated_fault_sublist.append((subset[0], '0', subset[1]))
-            updated_fault_sublist.sort(key=lambda x: (int(x[0]), int(x[1]), int(x[2])))
-
-
+            fault_sublist.sort(key=lambda x: ((x[0], x[1])))
             pattern_str = map(str,sub_pattern)
             pattern_str = ",".join(pattern_str)
             fw.write(pattern_str + '\n')
-            for fault in updated_fault_sublist:
-                if fault[1] == '0':
-                    fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
-                else:
-                    fw.write(str(fault[0]) + '-' + str(fault[1]) + '@' + str(fault[2]) + '\n')
+            for fault in fault_sublist:
+                fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
             fw.write('\n')
         fr.close()
         fw.close()
@@ -1205,22 +1212,12 @@ class Circuit:
         for sub_pattern in pattern_list:
             fault_subset = self.pfs_single(sub_pattern)
             fault_sublist = list(fault_subset)
-            updated_fault_sublist = []
-            for subset in fault_sublist:
-                if '-' in subset[0]:
-                    updated_fault_sublist.append((subset[0].split('-')[0], subset[0].split('-')[1], subset[1]))
-                else:
-                    updated_fault_sublist.append((subset[0], '0', subset[1]))
-            updated_fault_sublist.sort(key=lambda x: (int(x[0]), int(x[1]), int(x[2])))
-
+            fault_sublist.sort(key=lambda x: (x[0], x[1]))
             pattern_str = map(str,sub_pattern)
             pattern_str = ",".join(pattern_str)
             fw.write(pattern_str + '\n')
-            for fault in updated_fault_sublist:
-                if fault[1] == '0':
-                    fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
-                else:
-                    fw.write(str(fault[0]) + '-' + str(fault[1]) + '@' + str(fault[2]) + '\n')
+            for fault in fault_sublist:
+                fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
             fw.write('\n')
         fr.close()
         fw.close()
