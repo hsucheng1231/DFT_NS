@@ -801,7 +801,7 @@ class Circuit:
             # print("hello pattern list")
             fault_subset = self.dfs_single(sub_pattern)
             fault_sublist = list(fault_subset)
-            # fault_sublist.sort(key=lambda x: (int(x[0]), int(x[1])))
+            fault_sublist.sort(key=lambda x: (int(x[0]), int(x[1])))
             pattern_str = map(str,sub_pattern)
             pattern_str = ",".join(pattern_str)
             fw.write(pattern_str + '\n')
@@ -1064,9 +1064,15 @@ class Circuit:
         # output_path = '../data/fault_sim/' + self.c_name + '/'
         # if os.path.exists(output_path) == False:
         #     os.mkdir(output_path)
-        fr = open(fname_tp, mode='r')
-        # output_path = output_path + fname.rstrip('tp_b.txt') + '_pfs_out.txt'
-        fw = open(fname_log, mode='w')
+        output_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/pfs/'
+        input_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/input/'
+        if not os.path.exists(output_path):
+                os.mkdir(output_path)
+        if not os.path.exists(input_path):
+            raise NameError("No test pattern folder!")
+        fr = open(input_path + fname_tp, mode='r')
+        # output_path = output_path + fname.rstrip('tp_b.txt') + '_dfs_out.txt'
+        fw = open(output_path + fname_log, mode='w')
         
         lines = fr.readlines()
         # obtain a multiple test patterns list from the input file
@@ -1103,9 +1109,15 @@ class Circuit:
         if mode not in ["b", "x"]:
             raise NameError("Mode is not acceptable")
 
-        fr = open(fname_tp, mode='r')
-
-        fw = open(fname_log, mode='w')
+        output_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/pfs/'
+        input_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/input/'
+        if not os.path.exists(output_path):
+                os.mkdir(output_path)
+        if not os.path.exists(input_path):
+            raise NameError("No test pattern folder!")
+        fr = open(input_path + fname_tp, mode='r')
+        # output_path = output_path + fname.rstrip('tp_b.txt') + '_dfs_out.txt'
+        fw = open(output_path + fname_log, mode='w')
         
         lines = fr.readlines()
         # obtain a multiple test patterns list from the input file

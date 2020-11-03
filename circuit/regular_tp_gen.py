@@ -10,10 +10,10 @@ def regular_tp_gen(circuit):
         output_path = config.FAULT_SIM_DIR
         if not os.path.exists(output_path):
                 os.mkdir(output_path)
-                output_path = (output_path + '/' + circuit.c_name + '/')
+        output_path = (output_path + '/' + circuit.c_name + '/')
         if not os.path.exists(output_path):
                 os.mkdir(output_path)
-                output_path = (output_path + '/input/')
+        output_path = (output_path + '/input/')
         if not os.path.exists(output_path):
                 os.mkdir(output_path)
         fw = open(output_path + circuit.c_name + '_full_tp_b.txt', mode='w')

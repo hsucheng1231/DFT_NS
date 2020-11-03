@@ -17,6 +17,7 @@ from c432_logic_sim import c432_sim
 import config
 from checker_logicsim import *
 from regular_tp_gen import *
+from checker_dfs import *
 
 def check_gate_netlist(circuit, total_T=1):
 
@@ -52,20 +53,16 @@ def main():
     print("======================================================\n")
 
     #Ting-Yu
-    for c in ['c17','c432','c499','c1355','c6288']:
-        checker = Checker(c, args.tp)
-        checker.modelsim_wrapper()
-        checker.check_ckt_verilog()
-    exit()
+    # for c in ['c17','c432','c499','c1355','c6288']:
+    #     checker = Checker(c, args.tp)
+    #     checker.modelsim_wrapper()
+    #     checker.check_ckt_verilog()
+    # exit()
 
     circuit = Circuit(args.ckt)
-    circuit.read_verilog()
+    # circuit.read_verilog()
+    circuit.read_ckt()
     circuit.lev()
-   
-    """ Testing PFS """
-    #circuit.get_full_fault_list()
-    #circuit.pfs_multiple(fname="c17_full_tp_b.txt", mode="b")
-
 
     """ Testing DFS for single pattern """
     # test1 = circuit.gen_tp()
@@ -74,34 +71,40 @@ def main():
     # print("------------------------")
     # print(temp) 
     # regular_tp_gen(circuit)
-
     # Here we need a helper function to create a pattern for full test of a circuit
     # tp_fname = circuit.c_name + str(args.tp)  + "_tp_"+ ".log"
     # report_fname = circuit.c_name + "_tp_" + str(args.tp) + "-fault-sim.log"
-    tp_fname = circuit.c_name + "_full_tp_b.txt"
+    # tp_fname = circuit.c_name + "_full_tp_b.txt"
+    tp_path = config.FAULT_SIM_DIR + '/' + circuit.c_name + '/input/'
+    tp_fname = tp_path + circuit.c_name + '_' + str(args.tp) + "_tp_b.txt"
+    tp_fname_bare = circuit.c_name + '_' + str(args.tp) + "_tp_b.txt"
     dfs_report_fname = circuit.c_name + "_full_dfs_b.log"
     pfs_report_fname = circuit.c_name + "_full_pfs_b.log"
 
-    # circuit.gen_tp_file(
-    #         args.tp, 
-    #         fname=tp_fname,
-    #         mode = "b")
+    circuit.gen_tp_file(
+            args.tp, 
+            fname=tp_fname,
+            mode = "b")
+    """ Testing DFS """
     circuit.dfs_multiple_separate(
             # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
-            fname_tp = tp_fname,
+            fname_tp = tp_fname_bare,
             # fname_log="./c17_all_pfs.log",
             fname_log=dfs_report_fname,
             mode='b')
 
-    # pfs
-    #circuit.get_full_fault_list()
+    """ Testing PFS """
+    circuit.get_full_fault_list()
     #circuit.pfs_in_fault_list(fname_fl)
-    #circuit.pfs_multiple_seperate(
-    #         fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
-    #         fname_tp = tp_fname,
-    #         fname_log="./c17_all_pfs.log",
-    #         fname_log=pfs_report_fname,
-    #         mode='b')
+    circuit.pfs_multiple_separate(
+            # fname_tp="../data/modelsim/c17/input/c17_full_tp_b.txt",
+            fname_tp = tp_fname_bare,
+            # fname_log="./c17_all_pfs.log",
+            fname_log=pfs_report_fname,
+            mode='b')
+
+    """Check the results of DFS and PFS"""
+    file_checker(circuit, dfs_report_fname, pfs_report_fname, tp_fname_bare)
     # circuit.FD_new_generator()
     exit()
 

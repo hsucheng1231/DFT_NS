@@ -1,6 +1,7 @@
 import xlrd
 import os
 from itertools import groupby
+from circuit import *
 
 def dfs_checker(c_name):
     # output golden file
@@ -20,17 +21,30 @@ def dfs_checker(c_name):
                 fw.write(str(int(sheet.cell_value(1, j))) + '@' + str(int(sheet.cell_value(0, j))) + '\n')
         fw.write('\n')
 
-def file_checker(c_name): 
-    path_folder = '../data/fault_sim/' + c_name + '/'
-    path_golden = path_folder + c_name + '_FD_golden.txt'
-    path_output = path_folder + c_name + '_full_dfs_out.txt'
+
+
+
+
+
+def file_checker(circuit, dfs_report_fname, pfs_report_fname, tp_fname): 
+    golden_path = config.FAULT_SIM_DIR + '/' + circuit.c_name + '/dfs/'
+    output_path = config.FAULT_SIM_DIR + '/' + circuit.c_name + '/pfs/'
+    path_golden = golden_path + dfs_report_fname
+    path_output = output_path + pfs_report_fname
+    result_path = config.FAULT_SIM_DIR + '/' + circuit.c_name + '/compare/'
+    if not os.path.exists(result_path):
+                os.mkdir(result_path)
+    result_file = result_path + tp_fname.rstrip('_tp_b.txt') + '_dfs_pfs_compare.txt'
+    fw = open(result_file, 'w')
 
     if os.stat(path_golden).st_size == 0:
         print('Golden file is empty!')
+        fw.write('Golden file is empty!\n')
         return
         
     if os.stat(path_output).st_size == 0:
         print('Output file is empty!')
+        fw.write('Output file is empty!\n')
         return
 
     file_golden = open(path_golden, mode='r+')
@@ -48,32 +62,41 @@ def file_checker(c_name):
     while i < len(patterns_golden) and j < len(patterns_out):
         if patterns_golden[i] == patterns_out[j]:
             print(patterns_golden[i][0] + ': correct')
+            fw.write(patterns_golden[i][0] + ': correct\n')
         else:
             print(patterns_golden[i][0]+ ': wrong')
+            fw.write(patterns_golden[i][0]+ ': wrong\n')
             set_golden, set_out = set(patterns_golden[i]), set(patterns_out[j])
             dif_golden, dif_out = set_golden - set_out, set_out - set_golden
             longer_dif = dif_golden if len(dif_golden) > len(dif_out) else dif_out
             longer_dif = sorted(list(longer_dif), key = lambda dif: int(dif[:-2]))
             print('Golden\tOutput')
+            fw.write('Golden\tOutput\n')
             for dif in longer_dif:
                 num0, num1 = dif[:-1] + '0', dif[:-1] + '1'
                 ele_golden = num0 if num0 in dif_golden else num1 if num1 in dif_golden else 'None'
                 ele_out = num0 if num0 in dif_out else num1 if num1 in dif_out else 'None'
                 print(ele_golden + '\t' + ele_out)
+                fw.write(ele_golden + '\t' + ele_out + '\n')
         print('\n')
+        fw.write('\n')
                 
             
         i, j = i + 1, j + 1
     
     if i < len(patterns_golden):
         print('Golden not compared patterns:')
+        fw.write('Golden not compared patterns:\n')
         for idx in range(i, len(patterns_golden)):
             print(patterns_golden[idx][0])
+            fw.write(str(patterns_golden[idx][0]) + '\n')
             
     if j < len(patterns_out):
         print('Output not compared patterns:')
+        fw.write('Output not compared patterns:\n')
         for idx in range(j, len(patterns_out)):
             print(patterns_out[idx][0])
+            fw.write(str(patterns_out[idx][0]) + '\n')
 
     file_golden.close()
     file_out.close()
@@ -117,4 +140,3 @@ def file_checker(c_name):
     # file_out.close()
 
 # dfs_checker(c_name = 'c17')
-file_checker(c_name = 'c17')
