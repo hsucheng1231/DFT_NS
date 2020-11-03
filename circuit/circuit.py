@@ -913,6 +913,12 @@ class Circuit:
         fw.close()
         print("DFS-Multiple completed. \nLog file saved in {}".format(fname_log))
 
+    def dfs_pfs_gen_tp_rand(self,tp_num=1):
+        tp_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/input/'
+        if not os.path.exists(tp_path):
+            os.mkdir(tp_path)
+        self.tp_fname = tp_path + self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+        self.tp_fname_bare = self.c_name + '_' + str(tp_num) + "_tp_b.txt"
 
     def dfs_exe(self, tp_num=1, mode='rand'):
         """
@@ -931,16 +937,18 @@ class Circuit:
             tp_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/input/'
             if not os.path.exists(tp_path):
                 os.mkdir(tp_path)
-            tp_fname = tp_path + self.c_name + '_' + str(tp_num) + "_tp_b.txt"
-            tp_fname_bare = self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+            #tp_fname = tp_path + self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+            #tp_fname_bare = self.c_name + '_' + str(tp_num) + "_tp_b.txt"
             # generate given number random patterns
+            '''
             self.gen_tp_file(
             tp_num, 
             fname=tp_fname,
             mode = "b")
+            '''
             # run dfs
             self.dfs_multiple(
-            fname_tp = tp_fname_bare,
+            fname_tp = self.tp_fname_bare,
             fname_log=dfs_report_fname,
             mode='b')
 
@@ -1278,16 +1286,18 @@ class Circuit:
             tp_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/input/'
             if not os.path.exists(tp_path):
                 os.mkdir(tp_path)
-            tp_fname = tp_path + self.c_name + '_' + str(tp_num) + "_tp_b.txt"
-            tp_fname_bare = self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+            #tp_fname = tp_path + self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+            #tp_fname_bare = self.c_name + '_' + str(tp_num) + "_tp_b.txt"
             # generate given number random patterns
+            '''
             self.gen_tp_file(
             tp_num, 
             fname=tp_fname,
             mode = "b")
+            '''
             # run dfs
             self.pfs_multiple(
-            fname_tp = tp_fname_bare,
+            fname_tp = self.tp_fname_bare,
             fname_log=pfs_report_fname,
             mode='b')
 

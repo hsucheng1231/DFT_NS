@@ -79,7 +79,7 @@ def main():
     # tp_fname = circuit.c_name + str(args.tp)  + "_tp_"+ ".log"
     # report_fname = circuit.c_name + "_tp_" + str(args.tp) + "-fault-sim.log"
     # tp_fname = circuit.c_name + "_full_tp_b.txt"
-
+    circuit.dfs_pfs_gen_tp_rand(args.tp)
 
     """ Testing DFS """
     circuit.dfs_exe(tp_num = args.tp, mode = 'full')
