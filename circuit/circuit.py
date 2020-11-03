@@ -913,6 +913,7 @@ class Circuit:
         fw.close()
         print("DFS-Multiple completed. \nLog file saved in {}".format(fname_log))
 
+
     def dfs_pfs_gen_tp_rand(self,tp_num=1):
         tp_path = config.FAULT_SIM_DIR
         if not os.path.exists(tp_path):

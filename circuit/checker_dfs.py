@@ -3,7 +3,7 @@ import os
 from itertools import groupby
 from circuit import *
 
-def dfs_checker(c_name):
+def FD_excel_extractor(c_name):
     # output golden file
     output_path = '../data/modelsim/' + c_name + '/input/'
     fw = open(output_path + c_name + '_FD_golden.txt', mode='w')
@@ -26,15 +26,28 @@ def dfs_checker(c_name):
 
 
 
-def file_checker(circuit, dfs_report_fname, pfs_report_fname, tp_fname): 
+def dfs_pfs_checker(circuit, tp_num=1, mode='rand'): 
     golden_path = config.FAULT_SIM_DIR + '/' + circuit.c_name + '/dfs/'
     output_path = config.FAULT_SIM_DIR + '/' + circuit.c_name + '/pfs/'
-    path_golden = golden_path + dfs_report_fname
-    path_output = output_path + pfs_report_fname
     result_path = config.FAULT_SIM_DIR + '/' + circuit.c_name + '/compare/'
     if not os.path.exists(result_path):
                 os.mkdir(result_path)
-    result_file = result_path + tp_fname.rstrip('_tp_b.txt') + '_dfs_pfs_compare.txt'
+    if mode == 'rand':
+        dfs_report_fname = circuit.c_name + '_' + str(tp_num) + '_dfs_b.log'
+        pfs_report_fname = circuit.c_name + '_' + str(tp_num) + '_pfs_b.log'
+        path_golden = golden_path + dfs_report_fname
+        path_output = output_path + pfs_report_fname
+        result_file = result_path + circuit.c_name + '_' + str(tp_num) + '_dfs_pfs_compare.txt'
+
+    elif mode == 'full':
+        dfs_report_fname = circuit.c_name + "_full_dfs_b.log"
+        pfs_report_fname = circuit.c_name + "_full_pfs_b.log"
+        path_golden = golden_path + dfs_report_fname
+        path_output = output_path + pfs_report_fname
+        result_file = result_path + circuit.c_name + '_full_dfs_pfs_compare.txt'
+    else:
+        raise NameError("Mode is not acceptable! Mode = 'rand' or 'full'!")
+
     fw = open(result_file, 'w')
 
     if os.stat(path_golden).st_size == 0:
