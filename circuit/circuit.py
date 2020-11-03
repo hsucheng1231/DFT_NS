@@ -846,7 +846,7 @@ class Circuit:
             fault_coverage = float(len(fault_sublist) / (2*len(self.nodes_lev)))
             for fault in updated_fault_sublist:
                 if fault[1] == '0':
-                    fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
+                    fw.write(str(fault[0]) + '@' + str(fault[2]) + '\n')
                 else:
                     fw.write(str(fault[0]) + '-' + str(fault[1]) + '@' + str(fault[2]) + '\n')
             fw.write("Fault Coverage = " + str(fault_coverage) + '\n')
@@ -905,7 +905,7 @@ class Circuit:
         fault_coverage = float(len(fault_list) / (2*len(self.nodes_lev)))
         for fault in updated_fault_list:
             if fault[1] == '0':
-                fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
+                fw.write(str(fault[0]) + '@' + str(fault[2]) + '\n')
             else:
                 fw.write(str(fault[0]) + '-' + str(fault[1]) + '@' + str(fault[2]) + '\n')
         fw.write("Fault Coverage = " + str(fault_coverage) + '\n')
@@ -948,7 +948,7 @@ class Circuit:
             dfs_report_fname = self.c_name + "_full_dfs_b.log"
             tp_fname_bare = self.c_name + '_full_tp_b.txt'
             # generate all possible patterns in order
-            regular_tp_gen()
+            self.regular_tp_gen()
             # run dfs
             self.dfs_multiple_separate(
             fname_tp = tp_fname_bare,
@@ -1191,23 +1191,23 @@ class Circuit:
                 else:
                     updated_fault_sublist.append((subset[0], '0', subset[1]))
             updated_fault_sublist.sort(key=lambda x: (int(x[0]), int(x[1]), int(x[2])))
-
-
             pattern_str = map(str,sub_pattern)
             pattern_str = ",".join(pattern_str)
             fw.write(pattern_str + '\n')
+            fault_coverage = float(len(fault_sublist) / (2*len(self.nodes_lev)))
             for fault in updated_fault_sublist:
                 if fault[1] == '0':
-                    fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
+                    fw.write(str(fault[0]) + '@' + str(fault[2]) + '\n')
                 else:
                     fw.write(str(fault[0]) + '-' + str(fault[1]) + '@' + str(fault[2]) + '\n')
+            fw.write("Fault Coverage = " + str(fault_coverage) + '\n')
             fw.write('\n')
         fr.close()
         fw.close()
         print("PFS-Separate completed. \nLog file saved in {}".format(fname_log))
 
 
-    def pfs_multiple(self, fname_tp, fname_log, fname=None, mode="b"):
+    def pfs_multiple(self, fname_tp, fname_log, mode="b"):
         """ 
         new pfs for multiple input patterns
         the pattern list is obtained as a list consists of sublists of each pattern like:
@@ -1237,30 +1237,73 @@ class Circuit:
             for x in range(len(line_split)):
                 line_split[x]=int(line_split[x])
             pattern_list.append(line_split)
+        fault_set = set()
         for sub_pattern in pattern_list:
             fault_subset = self.pfs_single(sub_pattern)
-            fault_sublist = list(fault_subset)
-            updated_fault_sublist = []
-            for subset in fault_sublist:
-                if '-' in subset[0]:
-                    updated_fault_sublist.append((subset[0].split('-')[0], subset[0].split('-')[1], subset[1]))
-                else:
-                    updated_fault_sublist.append((subset[0], '0', subset[1]))
-            updated_fault_sublist.sort(key=lambda x: (int(x[0]), int(x[1]), int(x[2])))
-
-            pattern_str = map(str,sub_pattern)
-            pattern_str = ",".join(pattern_str)
-            fw.write(pattern_str + '\n')
-            for fault in updated_fault_sublist:
-                if fault[1] == '0':
-                    fw.write(str(fault[0]) + '@' + str(fault[1]) + '\n')
-                else:
-                    fw.write(str(fault[0]) + '-' + str(fault[1]) + '@' + str(fault[2]) + '\n')
-            fw.write('\n')
+            fault_set = fault_set.union(fault_subset)
+        fault_list = list(fault_set)
+        updated_fault_sublist = []
+        for subset in fault_list:
+            if '-' in subset[0]:
+                updated_fault_sublist.append((subset[0].split('-')[0], subset[0].split('-')[1], subset[1]))
+            else:
+                updated_fault_sublist.append((subset[0], '0', subset[1]))
+        updated_fault_sublist.sort(key=lambda x: (int(x[0]), int(x[1]), int(x[2])))
+        fault_coverage = float(len(fault_list) / (2*len(self.nodes_lev)))
+        for fault in updated_fault_sublist:
+            if fault[1] == '0':
+                fw.write(str(fault[0]) + '@' + str(fault[2]) + '\n')
+            else:
+                fw.write(str(fault[0]) + '-' + str(fault[1]) + '@' + str(fault[2]) + '\n')
+        fw.write("Fault Coverage = " + str(fault_coverage) + '\n')
         fr.close()
         fw.close()
         print("PFS-Separate completed. \nLog file saved in {}".format(fname_log))
     
+    def pfs_exe(self, tp_num=1, mode='rand'):
+        """
+        Execute pfs in rand or full mode
+        rand: the total faults can be detected by several random patterns
+        full: the faults can be detected by each single pattern; all possible patterns are included
+        """
+        self.get_full_fault_list()
+        if mode == 'rand':
+            pfs_report_fname = self.c_name + '_' + str(tp_num) + '_pfs_b.log'
+            tp_path = config.FAULT_SIM_DIR
+            if not os.path.exists(tp_path):
+                os.mkdir(tp_path)
+            tp_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/'
+            if not os.path.exists(tp_path):
+                os.mkdir(tp_path)
+            tp_path = config.FAULT_SIM_DIR + '/' + self.c_name + '/input/'
+            if not os.path.exists(tp_path):
+                os.mkdir(tp_path)
+            tp_fname = tp_path + self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+            tp_fname_bare = self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+            # generate given number random patterns
+            self.gen_tp_file(
+            tp_num, 
+            fname=tp_fname,
+            mode = "b")
+            # run dfs
+            self.pfs_multiple(
+            fname_tp = tp_fname_bare,
+            fname_log=pfs_report_fname,
+            mode='b')
+
+        elif mode == 'full':
+            pfs_report_fname = self.c_name + "_full_pfs_b.log"
+            tp_fname_bare = self.c_name + '_full_tp_b.txt'
+            # generate all possible patterns in order
+            self.regular_tp_gen()
+            # run pfs
+            self.pfs_multiple_separate(
+            fname_tp = tp_fname_bare,
+            fname_log=pfs_report_fname,
+            mode='b')
+
+        else:
+            raise NameError("Mode is not acceptable! Mode = 'rand' or 'full'!")
 
 
    

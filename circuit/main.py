@@ -53,6 +53,7 @@ def main():
     print("======================================================\n")
 
     #Ting-Yu
+    '''
     for c in ['c17','c432','c499','c1355','c6288']:
         checker = Checker(c, args.tp)
         checker.check_PI_PO()
@@ -60,6 +61,7 @@ def main():
         checker.check_ckt_verilog('verilog')
         checker.check_ckt_verilog('ckt')
     exit()
+    '''
 
     circuit = Circuit(args.ckt)
     # circuit.read_verilog()
@@ -80,10 +82,11 @@ def main():
 
 
     """ Testing DFS """
-    circuit.dfs_exe(tp_num = args.tp, mode = 'rand')
+    circuit.dfs_exe(tp_num = args.tp, mode = 'full')
 
 
     """ Testing PFS """
+    circuit.pfs_exe(tp_num = args.tp, mode = 'full')
     # circuit.get_full_fault_list()
     # #circuit.pfs_in_fault_list(fname_fl)
     # circuit.pfs_multiple_separate(
