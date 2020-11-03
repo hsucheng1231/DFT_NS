@@ -82,11 +82,11 @@ def main():
     circuit.dfs_pfs_gen_tp_rand(args.tp)
 
     """ Testing DFS """
-    circuit.dfs_exe(tp_num = args.tp, mode = 'full')
+    circuit.dfs_exe(tp_num = args.tp, mode = 'rand')
 
 
     """ Testing PFS """
-    circuit.pfs_exe(tp_num = args.tp, mode = 'full')
+    circuit.pfs_exe(tp_num = args.tp, mode = 'rand')
     # circuit.get_full_fault_list()
     # #circuit.pfs_in_fault_list(fname_fl)
     # circuit.pfs_multiple_separate(
