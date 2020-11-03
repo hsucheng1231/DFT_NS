@@ -56,16 +56,19 @@ def main():
     
     for c in ['c17','c432','c499','c880','c1355','c1908','c2670','c3540','c5315','c6288','c7552']:
         checker = Checker(c, args.tp)
-        checker.check_PI_PO()
+        if checker.check_PI_PO() == False:
+            print('#################################')
+            continue
         checker.modelsim_wrapper()
         checker.check_ckt_verilog('verilog')
         checker.check_ckt_verilog('ckt')
+        print('#################################')
     #exit()
     
 
     circuit = Circuit(args.ckt)
-    # circuit.read_verilog()
-    circuit.read_ckt()
+    circuit.read_verilog()
+    #circuit.read_ckt()
     circuit.lev()
 
     """ Testing DFS for single pattern """
@@ -86,7 +89,7 @@ def main():
 
 
     """ Testing PFS """
-    circuit.pfs_exe(in_fl_mode = 1, tp_num = args.tp, mode = 'full',fname_fl=None)
+    circuit.pfs_exe(in_fl_mode = 1, tp_num = args.tp, mode = 'rand',fname_fl=None)
     #circuit.pfs_exe(in_fl_mode = 0, tp_num = args.tp, mode = 'full',fname_fl='c17_f0.saf')
     # circuit.get_full_fault_list()
     # #circuit.pfs_in_fault_list(fname_fl)

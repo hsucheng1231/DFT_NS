@@ -43,10 +43,8 @@ def dfs_pfs_checker(circuit, tp_num=1, mode='rand'):
         file_out = open(path_output, mode='r+')
         line_golden = file_golden.readlines()
         line_golden = line_golden[:-1]
-        print(line_golden)
         line_out = file_out.readlines()
         line_out = line_out[:-1]
-        print(line_out)
 
         pass_flag = 0
         for i in range(len(line_golden)):
