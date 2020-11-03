@@ -38,6 +38,29 @@ def dfs_pfs_checker(circuit, tp_num=1, mode='rand'):
         path_golden = golden_path + dfs_report_fname
         path_output = output_path + pfs_report_fname
         result_file = result_path + circuit.c_name + '_' + str(tp_num) + '_dfs_pfs_compare.txt'
+        fw = open(result_file, 'w')
+        file_golden = open(path_golden, mode='r+')
+        file_out = open(path_output, mode='r+')
+        line_golden = file_golden.readlines()
+        line_golden = line_golden[:-1]
+        print(line_golden)
+        line_out = file_out.readlines()
+        line_out = line_out[:-1]
+        print(line_out)
+
+        pass_flag = 0
+        while line_golden !='' and line_out != '':
+            if line_golden == line_out:
+                pass_flag=1
+            elif line_golden != line_out:
+                fw.write('results are different!\n')
+                break
+            line_golden = file_golden.readline()
+            line_out = file_out.readline()
+
+        if pass_flag == 1:
+            fw.write('results are the same!\n')
+
 
     elif mode == 'full':
         dfs_report_fname = circuit.c_name + "_full_dfs_b.log"
@@ -45,71 +68,67 @@ def dfs_pfs_checker(circuit, tp_num=1, mode='rand'):
         path_golden = golden_path + dfs_report_fname
         path_output = output_path + pfs_report_fname
         result_file = result_path + circuit.c_name + '_full_dfs_pfs_compare.txt'
+        fw = open(result_file, 'w')
+        if os.stat(path_golden).st_size == 0:
+            print('Golden file is empty!')
+            fw.write('Golden file is empty!\n')
+            return   
+        if os.stat(path_output).st_size == 0:
+            print('Output file is empty!')
+            fw.write('Output file is empty!\n')
+            return
+        file_golden = open(path_golden, mode='r+')
+        file_out = open(path_output, mode='r+')
+
+        content_golden = map(lambda line: len(line) > 1 and line[:-1], list(file_golden))
+        content_out = map(lambda line: len(line) > 1 and line[:-1], list(file_out))
+        
+        gen_golden = (list(g) for _, g in groupby(content_golden, key='\n'.__ne__))
+        patterns_golden = [a + b for a, b in zip(gen_golden, gen_golden)]  
+        gen_out = (list(g) for _, g in groupby(content_out, key='\n'.__ne__))
+        patterns_out = [a + b for a, b in zip(gen_out, gen_out)]
+        
+        i, j = 0, 0
+        while i < len(patterns_golden) and j < len(patterns_out):
+            if patterns_golden[i] == patterns_out[j]:
+                print(patterns_golden[i][0] + ': correct')
+                fw.write(patterns_golden[i][0] + ': correct\n')
+            else:
+                print(patterns_golden[i][0]+ ': wrong')
+                fw.write(patterns_golden[i][0]+ ': wrong\n')
+                set_golden, set_out = set(patterns_golden[i]), set(patterns_out[j])
+                dif_golden, dif_out = set_golden - set_out, set_out - set_golden
+                longer_dif = dif_golden if len(dif_golden) > len(dif_out) else dif_out
+                longer_dif = sorted(list(longer_dif), key = lambda dif: int(dif[:-2]))
+                print('Golden\tOutput')
+                fw.write('Golden\tOutput\n')
+                for dif in longer_dif:
+                    num0, num1 = dif[:-1] + '0', dif[:-1] + '1'
+                    ele_golden = num0 if num0 in dif_golden else num1 if num1 in dif_golden else 'None'
+                    ele_out = num0 if num0 in dif_out else num1 if num1 in dif_out else 'None'
+                    print(ele_golden + '\t' + ele_out)
+                    fw.write(ele_golden + '\t' + ele_out + '\n')
+            print('\n')
+            fw.write('\n')       
+                
+            i, j = i + 1, j + 1
+        
+        if i < len(patterns_golden):
+            print('Golden not compared patterns:')
+            fw.write('Golden not compared patterns:\n')
+            for idx in range(i, len(patterns_golden)):
+                print(patterns_golden[idx][0])
+                fw.write(str(patterns_golden[idx][0]) + '\n')
+                
+        if j < len(patterns_out):
+            print('Output not compared patterns:')
+            fw.write('Output not compared patterns:\n')
+            for idx in range(j, len(patterns_out)):
+                print(patterns_out[idx][0])
+                fw.write(str(patterns_out[idx][0]) + '\n')
     else:
         raise NameError("Mode is not acceptable! Mode = 'rand' or 'full'!")
 
-    fw = open(result_file, 'w')
-
-    if os.stat(path_golden).st_size == 0:
-        print('Golden file is empty!')
-        fw.write('Golden file is empty!\n')
-        return
-        
-    if os.stat(path_output).st_size == 0:
-        print('Output file is empty!')
-        fw.write('Output file is empty!\n')
-        return
-
-    file_golden = open(path_golden, mode='r+')
-    file_out = open(path_output, mode='r+')
-
-    content_golden = map(lambda line: len(line) > 1 and line[:-1], list(file_golden))
-    content_out = map(lambda line: len(line) > 1 and line[:-1], list(file_out))
-    
-    gen_golden = (list(g) for _, g in groupby(content_golden, key='\n'.__ne__))
-    patterns_golden = [a + b for a, b in zip(gen_golden, gen_golden)]  
-    gen_out = (list(g) for _, g in groupby(content_out, key='\n'.__ne__))
-    patterns_out = [a + b for a, b in zip(gen_out, gen_out)]
-    
-    i, j = 0, 0
-    while i < len(patterns_golden) and j < len(patterns_out):
-        if patterns_golden[i] == patterns_out[j]:
-            print(patterns_golden[i][0] + ': correct')
-            fw.write(patterns_golden[i][0] + ': correct\n')
-        else:
-            print(patterns_golden[i][0]+ ': wrong')
-            fw.write(patterns_golden[i][0]+ ': wrong\n')
-            set_golden, set_out = set(patterns_golden[i]), set(patterns_out[j])
-            dif_golden, dif_out = set_golden - set_out, set_out - set_golden
-            longer_dif = dif_golden if len(dif_golden) > len(dif_out) else dif_out
-            longer_dif = sorted(list(longer_dif), key = lambda dif: int(dif[:-2]))
-            print('Golden\tOutput')
-            fw.write('Golden\tOutput\n')
-            for dif in longer_dif:
-                num0, num1 = dif[:-1] + '0', dif[:-1] + '1'
-                ele_golden = num0 if num0 in dif_golden else num1 if num1 in dif_golden else 'None'
-                ele_out = num0 if num0 in dif_out else num1 if num1 in dif_out else 'None'
-                print(ele_golden + '\t' + ele_out)
-                fw.write(ele_golden + '\t' + ele_out + '\n')
-        print('\n')
-        fw.write('\n')
-                
-            
-        i, j = i + 1, j + 1
-    
-    if i < len(patterns_golden):
-        print('Golden not compared patterns:')
-        fw.write('Golden not compared patterns:\n')
-        for idx in range(i, len(patterns_golden)):
-            print(patterns_golden[idx][0])
-            fw.write(str(patterns_golden[idx][0]) + '\n')
-            
-    if j < len(patterns_out):
-        print('Output not compared patterns:')
-        fw.write('Output not compared patterns:\n')
-        for idx in range(j, len(patterns_out)):
-            print(patterns_out[idx][0])
-            fw.write(str(patterns_out[idx][0]) + '\n')
 
     file_golden.close()
     file_out.close()
