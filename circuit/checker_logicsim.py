@@ -46,25 +46,84 @@ class Checker():
         self.tp_path = os.path.join(sim.path_gold, 'golden_' + circuit.c_name + '_'+ str(self.tp_count)+ '_b.txt')
         #return self.check_IO_golden(circuit, self.tp_path)
 
-    def check_ckt_verilog(self):
+    def check_ckt_verilog(self, ckt_format = 'verilog'):
         #check verilog with golden_IO
         #check ckt with golden_IO
-        circuit_verilog = Circuit(self.c_name)
-        circuit_verilog.read_verilog()
-        circuit_verilog.lev()
 
-        circuit_ckt = Circuit(self.c_name)
-        circuit_ckt.read_ckt()
-        circuit_ckt.lev()
+        circuit = Circuit(self.c_name)
+        if ckt_format == 'verilog':
+            circuit.read_verilog()
+        elif ckt_format == 'ckt':
+            circuit.read_ckt()
+        circuit.lev()
+        if self.check_IO_golden(circuit) == True:
+            print(circuit.c_name +  ckt_format + ' matches golden_IO!')
+        else:
+            print(circuit.c_name + ckt_format + ' does not match golden_IO!')
 
-        if self.check_IO_golden(circuit_verilog) == True:
-            print(circuit_verilog.c_name + 'verilog matches golden_IO!')
+    def check_PI_PO(self):
+        #Given a circuit name, check the PI/PO pins between verilog and ckt
+        #from http://sportlab.usc.edu/~msabrishami/benchmarks.html
+        #between CKT-658 and verilog
+        #circuit: 1355 has different PI/PO pins
+        #circuit: 17, 432, 499, 880, 1908, 3540, 5315, 6288 has the same PI/PO pins 
+        
+        if self.find_file(config.VERILOG_DIR, self.c_name + '.v') == True and self.find_file(config.CKT_DIR, self.c_name + '.ckt'):
+            circuit_verilog = Circuit(self.c_name)
+            circuit_verilog.read_verilog()
+            circuit_ckt = Circuit(self.c_name)
+            circuit_ckt.read_ckt()
+            if self.get_pin_num(circuit_verilog.PO) == self.get_pin_num(circuit_ckt.PO) and self.get_pin_num(circuit_verilog.PI) == self.get_pin_num(circuit_ckt.PI):
+                print('PI/PO pins between ckt and verilog of {} are the same!'.format(self.c_name))
+                return True
+            else:
+                print('PI/PO pins between ckt and verilog of {} are different!'.format(self.c_name))
+                return False
         else:
-            print(circuit_verilog.c_name + 'verilog does not match golden_IO!')
-        if self.check_IO_golden(circuit_ckt) == True:
-            print(circuit_ckt.c_name + 'ckt matches golden_IO!')
-        else:
-            print(circuit_ckt.c_name + 'ckt does not match golden_IO!')
+            print('miss ckt or verilog files for {} circuit'.format(self.c_name))
+            return False
+
+    def get_pin_num(self, node_list):
+        #get the pins number list
+        num_list = []
+        for node in node_list:
+            num_list.append(node.num)
+        return num_list
+
+    def find_file(self, path, fname):
+        #check if the file is exist
+        for r, d, f in os.walk(path):
+            if fname in f:
+                return True
+            else:
+                return False
+
+    def check_IO_golden(self, circuit):
+        #we have golden_test() in circuit
+        #We already generated golden-results
+        #Now we just want to check if circuit.logicsim of ckt or verilog matches
+        infile = open(self.tp_path, "r")
+        lines = infile.readlines()
+        PI_t_order  = [x[1:] for x in lines[0][8:].strip().split(',')]
+        PO_t_order = [x[1:] for x in lines[1][8:].strip().split(',')]
+        PI_num = [x.num for x in circuit.PI]
+        #print("Logic-Sim validation with {} patterns".format(int((len(lines)-2)/3)))
+        if PI_t_order != PI_num:
+            print("Error:{} PI node order does not match! ".format(circuit.c_name))
+            return False
+        for t in range(int((len(lines)-2)/3)):
+            test_in  = [int(x) for x in lines[(t+1)*3].strip().split(',')]
+            test_out = [int(x) for x in lines[(t+1)*3+1].strip().split(',')]
+            circuit.logic_sim(test_in)
+            logic_out = circuit.read_PO()
+            for i in range(len(PO_t_order)):
+                out_node = PO_t_order[i]
+                out_node_golden = test_out[i]
+                if out_node_golden != logic_out["out"+str(out_node)]:
+                    print("Error:{} PO node order does not match! ".format(circuit.c_name))
+                    return False
+        #print("Validation completed successfully - all correct")
+        return True
     '''
     def run_ckt(self, ckt_name, tp_count):
 
@@ -200,32 +259,7 @@ class Checker():
             self.check_PI_PO(file + '.ckt', file + '.v')
     '''
 
-    def check_IO_golden(self, circuit):
-        #we have golden_test() in circuit
-        #We already generated golden-results
-        #Now we just want to check if circuit.logicsim of ckt or verilog matches
-        infile = open(self.tp_path, "r")
-        lines = infile.readlines()
-        PI_t_order  = [x[1:] for x in lines[0][8:].strip().split(',')]
-        PO_t_order = [x[1:] for x in lines[1][8:].strip().split(',')]
-        PI_num = [x.num for x in circuit.PI]
-        #print("Logic-Sim validation with {} patterns".format(int((len(lines)-2)/3)))
-        if PI_t_order != PI_num:
-            print("Error:{} PI node order does not match! ".format(circuit.c_name))
-            return False
-        for t in range(int((len(lines)-2)/3)):
-            test_in  = [int(x) for x in lines[(t+1)*3].strip().split(',')]
-            test_out = [int(x) for x in lines[(t+1)*3+1].strip().split(',')]
-            circuit.logic_sim(test_in)
-            logic_out = circuit.read_PO()
-            for i in range(len(PO_t_order)):
-                out_node = PO_t_order[i]
-                out_node_golden = test_out[i]
-                if out_node_golden != logic_out["out"+str(out_node)]:
-                    print("Error:{} PO node order does not match! ".format(circuit.c_name))
-                    return False
-        #print("Validation completed successfully - all correct")
-        return True
+    
 '''
 try:
     Checker().run_all(50)
