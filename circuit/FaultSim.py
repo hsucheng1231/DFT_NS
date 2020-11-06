@@ -1,8 +1,11 @@
-class FaultSim():
+import config
+
+
+class FaultSim:
     def __init__(self, circuit):
         self.circuit = circuit
         # fault sim type: dfs / pfs
-        self.fs_type = None
+        self.fs_type = ""
         
 
     def fs_folder(self, tp_mode='rand', r_mode='b'):
@@ -20,19 +23,19 @@ class FaultSim():
 
         # create folder for input patterns
         tp_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/input/'
-            if not os.path.exists(tp_path):
-                os.mkdir(tp_path)
+        if not os.path.exists(tp_path):
+            os.mkdir(tp_path)
         # create folder for dfs/pfs log files
         tp_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/dfs/'
-            if not os.path.exists(tp_path):
-                os.mkdir(tp_path)
+        if not os.path.exists(tp_path):
+            os.mkdir(tp_path)
         tp_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/pfs/'
-            if not os.path.exists(tp_path):
-                os.mkdir(tp_path)
+        if not os.path.exists(tp_path):
+            os.mkdir(tp_path)
         # create folder for dfs/pfs compare results
         tp_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/compare/'
-            if not os.path.exists(tp_path):
-                os.mkdir(tp_path)
+        if not os.path.exists(tp_path):
+            os.mkdir(tp_path)
 
 
     def fs_tp_gen(self, tp_num=1, t_mode='rand', r_mode='b'):
@@ -43,12 +46,12 @@ class FaultSim():
         '''
         tp_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/input/'
         tp_fname = tp_path + self.circuit.c_name + '_' + str(tp_num) + '_tp_' + r_mode + '.txt'
-        if mode == 'rand':
+        if t_mode == 'rand':
             self.circuit.gen_tp_file(
                 tp_num, 
                 fname = tp_fname,
                 mode = "b")
-        elif mode == 'full':
+        elif t_mode == 'full':
             num = len(self.circuit.PI)
             times = pow(2, num)
             pattern = []
@@ -146,6 +149,8 @@ class FaultSim():
         """
         if mode not in ["b", "x"]:
             raise NameError("Mode is not acceptable")
+        output_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/' + self.fs_type + '/'
+        fw = open(output_path + fname_log, mode='w')
         fault_set = set()
         for sub_pattern in pattern_list:
             # print("hello pattern list")
@@ -174,34 +179,11 @@ class FaultSim():
 
 
 
-    def dfs_exe(self, tp_num=1, t_mode='rand', r_mode='b'):
+    def fs_exe(self, tp_num=1, t_mode='rand', r_mode='b'):
         """
-        Execute fs in rand or full mode
-        rand: the total faults can be detected by several random patterns
-        full: the faults can be detected by each single pattern; all possible patterns are included
+        Defined in extended class: DFS, PFS
         """
-        if t_mode == 'rand':
-            report_fname = self.circuit.c_name + '_' + str(tp_num) + '_dfs_'+ r_mode + '.log'
-            # tp_fname = tp_path + self.c_name + '_' + str(tp_num) + "_tp_b.txt"
-            tp_fname = self.circuit.c_name + '_' + str(tp_num) + "_tp_b.txt"
-
-            self.fs_tp_gen(tp_num, t_mode = 'rand', r_mode)
-            # tp_fname is bare name, the path is given in the method
-            pattern_list = self.fs_input_fetch(tp_fname)
-            # run fs multiple
-            self.multiple(pattern_list=pattern_list, fname_log=report_fname, mode="b")
-
-        elif t_mode == 'full':
-            report_fname = self.circuit.c_name + '_full_dfs_' + r_mode + '.log
-            tp_fname = self.circuit.c_name + '_full_tp_' + r_mode + '.txt'
-            # generate all possible patterns in order
-            self.fs_tp_gen(tp_num, t_mode = 'full', r_mode)
-            pattern_list = self.fs_input_fetch(tp_fname)
-            # run dfs
-            self.multiple_separate(pattern_list=pattern_list, fname_log=report_fname, mode="b"):
-
-        else:
-            raise NameError("Mode is not acceptable! Mode = 'rand' or 'full'!")
+        raise NotImplementedError()
 
 
 
