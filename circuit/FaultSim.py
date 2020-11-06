@@ -174,34 +174,13 @@ class FaultSim():
 
 
 
-    def dfs_exe(self, tp_num=1, t_mode='rand', r_mode='b'):
+    def fs_exe(self, tp_num=1, t_mode='rand', r_mode='b'):
         """
         Execute fs in rand or full mode
         rand: the total faults can be detected by several random patterns
         full: the faults can be detected by each single pattern; all possible patterns are included
         """
-        if t_mode == 'rand':
-            report_fname = self.circuit.c_name + '_' + str(tp_num) + '_dfs_'+ r_mode + '.log'
-            # tp_fname = tp_path + self.c_name + '_' + str(tp_num) + "_tp_b.txt"
-            tp_fname = self.circuit.c_name + '_' + str(tp_num) + "_tp_b.txt"
-
-            self.fs_tp_gen(tp_num, t_mode = 'rand', r_mode)
-            # tp_fname is bare name, the path is given in the method
-            pattern_list = self.fs_input_fetch(tp_fname)
-            # run fs multiple
-            self.multiple(pattern_list=pattern_list, fname_log=report_fname, mode="b")
-
-        elif t_mode == 'full':
-            report_fname = self.circuit.c_name + '_full_dfs_' + r_mode + '.log
-            tp_fname = self.circuit.c_name + '_full_tp_' + r_mode + '.txt'
-            # generate all possible patterns in order
-            self.fs_tp_gen(tp_num, t_mode = 'full', r_mode)
-            pattern_list = self.fs_input_fetch(tp_fname)
-            # run dfs
-            self.multiple_separate(pattern_list=pattern_list, fname_log=report_fname, mode="b"):
-
-        else:
-            raise NameError("Mode is not acceptable! Mode = 'rand' or 'full'!")
+        raise NotImplementedError()
 
 
 
