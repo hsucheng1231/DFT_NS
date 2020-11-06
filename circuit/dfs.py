@@ -3,7 +3,7 @@ from FaultSim import *
 class DFS(FaultSim):
     def __init__(self, circuit):
         FaultSim.__init__(self, circuit)
-        self.fs_type = 'DFS'
+        self.fs_type = 'dfs'
 
 
 
