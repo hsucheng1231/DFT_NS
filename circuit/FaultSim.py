@@ -45,17 +45,18 @@ class FaultSim:
         full: create all possible test patterns in order
         '''
         tp_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/input/'
-        tp_fname = tp_path + self.circuit.c_name + '_' + str(tp_num) + '_tp_' + r_mode + '.txt'
         if t_mode == 'rand':
+            tp_fname = tp_path + self.circuit.c_name + '_' + str(tp_num) + '_tp_' + r_mode + '.txt'
             self.circuit.gen_tp_file(
                 tp_num, 
                 fname = tp_fname,
                 mode = "b")
         elif t_mode == 'full':
+            tp_fname = tp_path + self.circuit.c_name + '_full_tp_' + r_mode + '.txt'
             num = len(self.circuit.PI)
             times = pow(2, num)
             pattern = []
-            fw = open(tp_path + tp_fname, mode='w')
+            fw = open(tp_fname, mode='w')
             PI_list = []
             for node in self.circuit.PI:
                 PI_list.append(node.num)
@@ -111,6 +112,8 @@ class FaultSim:
         if mode not in ["b", "x"]:
             raise NameError("Mode is not acceptable")  
 
+        output_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/' + self.fs_type + '/'
+        fw = open(output_path + fname_log, mode='w')
         for sub_pattern in pattern_list:
             # print("hello pattern list")
             fault_subset = self.single(sub_pattern)
@@ -133,7 +136,6 @@ class FaultSim:
                     fw.write(str(fault[0]) + '-' + str(fault[1]) + '@' + str(fault[2]) + '\n')
             fw.write("Fault Coverage = " + str(fault_coverage) + '\n')
             fw.write('\n')
-        fr.close()
         fw.close()
         print(self.fs_type + "-Separate completed. \nLog file saved in {}".format(fname_log))
 
