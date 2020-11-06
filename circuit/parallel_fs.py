@@ -8,6 +8,7 @@ class PFS(FaultSim):
         FaultSim.__init__(self, circuit)
         self.in_fault_num = [] # input fault num, string format
         self.in_fault_type = [] # input fault type, integer format
+        self.fs_type = "PFS"
     
     def pfs_in_fault_list(self,fname,fault_list_type):
         """
@@ -20,7 +21,7 @@ class PFS(FaultSim):
         """
         self.in_fault_num = []
         self.in_fault_type = []
-        if fault_list_type = 1:
+        if fault_list_type == 1:
             self.circuit.get_full_fault_list()
             self.in_fault_num = self.circuit.fault_node_num
             self.in_fault_type = self.circuit.fault_type
@@ -85,8 +86,8 @@ class PFS(FaultSim):
                     mask_dict[fault_num[i]] = 2**i
             
             # pfs for one pass
-            node_dict = dict(zip([x.num for x in circuit.PI], input_pattern))
-            for node in circuit.nodes_lev:
+            node_dict = dict(zip([x.num for x in self.circuit.PI], input_pattern))
+            for node in self.circuit.nodes_lev:
                 node.pfs_I = 0
                 node.pfs_S = pfs_stuck_values
 
@@ -101,7 +102,7 @@ class PFS(FaultSim):
                 node.insert_f(bitwise_not)
             
             # output result
-            for i in circuit.nodes_lev:
+            for i in self.circuit.nodes_lev:
                 if i.ntype == 'PO':
                     # if some faults can be detected
                     if (i.pfs_V != 0) and (i.pfs_V != bitwise_not):
@@ -125,13 +126,14 @@ class PFS(FaultSim):
         rand: the total faults can be detected by several random patterns
         full: the faults can be detected by each single pattern; all possible patterns are included
         """
+        fname = 'c17_f0.saf'
         self.pfs_in_fault_list(fname,fault_list_type)
 
         if t_mode == 'rand':
             report_fname = self.circuit.c_name + '_' + str(tp_num) + '_' + self.fs_type + '_'+ r_mode + '.log'
             tp_fname = self.circuit.c_name + '_' + str(tp_num) + "_tp_b.txt"
 
-            self.fs_tp_gen(tp_num, t_mode = 'rand', r_mode)
+            self.fs_tp_gen(tp_num, t_mode = 'rand', r_mode = r_mode)
             # tp_fname is bare name, the path is given in the method
             pattern_list = self.fs_input_fetch(tp_fname)
             # run pfs multiple
@@ -141,10 +143,10 @@ class PFS(FaultSim):
             report_fname = self.circuit.c_name + '_full_' + self.fs_type + '_' + r_mode + '.log'
             tp_fname = self.circuit.c_name + '_full_tp_' + r_mode + '.txt'
             # generate all possible patterns in order
-            self.fs_tp_gen(tp_num, t_mode = 'full', r_mode)
+            self.fs_tp_gen(tp_num, t_mode = 'full', r_mode = r_mode)
             pattern_list = self.fs_input_fetch(tp_fname)
             # run pfs
-            self.multiple_separate(pattern_list=pattern_list, fname_log=report_fname, mode="b"):
+            self.multiple_separate(pattern_list=pattern_list, fname_log=report_fname, mode="b")
 
         else:
             raise NameError("Mode is not acceptable! Mode = 'rand' or 'full'!")
