@@ -13,6 +13,7 @@ class FaultSim():
         tp_path = config.FAULT_SIM_DIR
         if not os.path.exists(tp_path):
             os.mkdir(tp_path)
+            print("Creating fault dictionary directory in {}".format(config.FAULT_DICT_DIR))
         tp_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/'
         if not os.path.exists(tp_path):
             os.mkdir(tp_path)
@@ -161,7 +162,7 @@ class FaultSim():
         #fault_list.sort(key=lambda x: (int(x[0]), int(x[1])))
         updated_fault_list.sort(key=lambda x: (int(x[0]), int(x[1]), int(x[2])))
         # fault is a tuple like: (1,0): node 1 ss@0
-        fault_coverage = float(len(fault_list) / (2*len(self.nodes_lev)))
+        fault_coverage = float(len(fault_list) / (2*len(self.circuit.nodes_lev)))
         for fault in updated_fault_list:
             if fault[1] == '0':
                 fw.write(str(fault[0]) + '@' + str(fault[2]) + '\n')
@@ -172,16 +173,17 @@ class FaultSim():
         print(self.fs_type + "-Multiple completed. \nLog file saved in {}".format(fname_log))
 
 
-    def fs_exe(self, tp_num=1, t_mode='rand', r_mode='b'):
+
+    def dfs_exe(self, tp_num=1, t_mode='rand', r_mode='b'):
         """
         Execute fs in rand or full mode
         rand: the total faults can be detected by several random patterns
         full: the faults can be detected by each single pattern; all possible patterns are included
         """
-        if mode == 'rand':
-            report_fname = self.c_name + '_' + str(tp_num) + '_' + self.fs_type + '_'+ r_mode + '.log'
+        if t_mode == 'rand':
+            report_fname = self.circuit.c_name + '_' + str(tp_num) + '_dfs_'+ r_mode + '.log'
             # tp_fname = tp_path + self.c_name + '_' + str(tp_num) + "_tp_b.txt"
-            tp_fname = self.c_name + '_' + str(tp_num) + "_tp_b.txt"
+            tp_fname = self.circuit.c_name + '_' + str(tp_num) + "_tp_b.txt"
 
             self.fs_tp_gen(tp_num, t_mode = 'rand', r_mode)
             # tp_fname is bare name, the path is given in the method
@@ -189,9 +191,9 @@ class FaultSim():
             # run fs multiple
             self.multiple(pattern_list=pattern_list, fname_log=report_fname, mode="b")
 
-        elif mode == 'full':
-            report_fname = self.c_name + '_full_' + self.fs_type + '_' + r_mode + '.log
-            tp_fname = self.c_name + '_full_tp_' + r_mode + '.txt'
+        elif t_mode == 'full':
+            report_fname = self.circuit.c_name + '_full_dfs_' + r_mode + '.log
+            tp_fname = self.circuit.c_name + '_full_tp_' + r_mode + '.txt'
             # generate all possible patterns in order
             self.fs_tp_gen(tp_num, t_mode = 'full', r_mode)
             pattern_list = self.fs_input_fetch(tp_fname)
@@ -201,3 +203,47 @@ class FaultSim():
         else:
             raise NameError("Mode is not acceptable! Mode = 'rand' or 'full'!")
 
+
+
+    def FD_new_generator(self):
+        """
+        Creat a new FD in excel using dfs results
+        """
+        # output golden file
+        fw_path = config.FAULT_DICT_DIR + '/' + self.circuit.c_name + '/'
+        fr_path = config.FAULT_DICT_DIR + '/' + self.circuit.c_name + '/dfs/'
+        fr = open(fr_path + self.circuit.c_name + '_full_dfs_b.log','r')
+        # To create Workbook
+        workbook = xlwt.Workbook()   
+        sheet = workbook.add_sheet("Sheet Name")  
+        # Specifying style 
+        # style = xlwt.easyxf('font: bold 1')     
+        # Specifying column 
+        PI_string = ""
+        for node in self.circuit.PI:
+            PI_string = PI_string + node.num + ','
+        PI_string = PI_string[:-1]
+        print(PI_string)
+        # print(self.nodes)
+        sheet.write(0, 0, PI_string)
+        i = 1
+        fault_mapping = {}
+        for node in self.circuit.nodes_lev:
+            sheet.write(0, i, node.num + '@' + '0')
+            fault_mapping[node.num + '@' + '0'] = i
+            sheet.write(0, i+1, node.num + '@' + '1')
+            fault_mapping[node.num + '@' + '1'] = i+1
+            print(0, i, node.num + '@' + '0')
+            print(0, i+1, node.num + '@' + '1')
+            i = i + 2
+        j = 1
+        sheet.write(j, 0, fr.readline()) 
+        for line in fr.readlines():
+            if line == '\n':
+                j = j + 1
+            elif '@' in line:
+                sheet.write(j, fault_mapping[line[:-1]], 'X')
+            else:
+                sheet.write(j, 0, line)
+
+        workbook.save(os.path.join(fw_path, self.circuit.c_name + '_FD_new.xls'))
