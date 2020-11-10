@@ -1,4 +1,5 @@
 import config
+import os
 
 
 class FaultSim:
@@ -72,6 +73,40 @@ class FaultSim:
             raise NameError("Mode is not acceptable! Mode = 'rand' or 'full'!")
 
 
+################################## just for golden file ############################################
+    def fs_tp_gen_golden(self, tp_num=1, no=1, t_mode='rand', r_mode='b'):
+        '''
+        Generate test patterns for DFS/PFS
+        rand: random mode, create certain number of random test pattterns
+        full: create all possible test patterns in order
+        '''
+        tp_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/input/'
+        if t_mode == 'rand':
+            tp_fname = tp_path + self.circuit.c_name + '_' + str(tp_num) + '_' + str(no) + '_tp_' + r_mode + '.txt'
+            self.circuit.gen_tp_file(
+                tp_num, 
+                fname = tp_fname,
+                mode = "b")
+        elif t_mode == 'full':
+            tp_fname = tp_path + self.circuit.c_name + '_full_tp_' + r_mode + '.txt'
+            num = len(self.circuit.PI)
+            times = pow(2, num)
+            pattern = []
+            fw = open(tp_fname, mode='w')
+            PI_list = []
+            for node in self.circuit.PI:
+                PI_list.append(node.num)
+            PI_string = ','.join(PI_list)
+            print(PI_string)
+            fw.write(PI_string + '\n')
+            for i in range(times):
+                pattern = list(bin(i)[2:].zfill(num))
+                pattern_str = ",".join(pattern)
+                print(pattern_str)
+                fw.write(pattern_str + '\n')
+        else: 
+            raise NameError("Mode is not acceptable! Mode = 'rand' or 'full'!")
+##########################################################################################
 
     def fs_input_fetch(self, fname_tp):
         '''

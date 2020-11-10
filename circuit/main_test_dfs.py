@@ -76,6 +76,9 @@ def main():
     """ Testing DFS """
     print("DFS starts")
     dfs = DFS(circuit)
+    for i in range(1, 11):
+        dfs.fs_exe_golden(tp_num=1, t_mode='rand', no=i, r_mode='b')
+    
     dfs.fs_exe(tp_num=args.tp, t_mode='rand', r_mode='b')
 
     # circuit.FD_new_generator()
