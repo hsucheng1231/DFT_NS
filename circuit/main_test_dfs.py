@@ -19,7 +19,7 @@ from checker_logicsim import *
 from regular_tp_gen import *
 from checker_dfs import *
 from FaultSim import *
-from dfs import *
+from deductive_fs import *
 
 def check_gate_netlist(circuit, total_T=1):
 
@@ -74,8 +74,13 @@ def main():
     circuit.lev()
 
     """ Testing DFS """
+    """
+    input command:
+        python main_test_dfs.py -ckt <ckt_name> -tp <tp_num>
+    """
     print("DFS starts")
     dfs = DFS(circuit)
+    # generate 10 random test patterns and corresponding results
     for i in range(1, 11):
         dfs.fs_exe_golden(tp_num=1, t_mode='rand', no=i, r_mode='b')
     
