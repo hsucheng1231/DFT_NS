@@ -113,7 +113,7 @@ class FaultSim:
         Fetch input pattern list from a input file
         pattern_list = [[1,1,0,0,1],[1,0,1,0,0],[0,0,0,1,1],[1,0,0,1,0]]
         '''
-        output_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/' + self.fs_type + '/'
+        # output_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/' + self.fs_type + '/'
         input_path = config.FAULT_SIM_DIR + '/' + self.circuit.c_name + '/input/'
         fr = open(input_path + fname_tp, mode='r')
         # read the test pattern
